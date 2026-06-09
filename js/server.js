@@ -1,0 +1,176 @@
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const DATA_DIR = path.join(__dirname, 'data');
+const JOBS_FILE = path.join(DATA_DIR, 'jobs.json');
+const TECHNICIANS_FILE = path.join(DATA_DIR, 'technicians.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const GST_RATE = 0.18;
+
+const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
+
+// In-memory "database", seeded from the JSON files. Writes are persisted back
+// to jobs.json so created records survive restarts (like a real DB).
+let jobs = readJson(JOBS_FILE);
+const technicians = readJson(TECHNICIANS_FILE);
+const users = readJson(USERS_FILE);
+
+const persistJobs = () => {
+  fs.writeFile(JOBS_FILE, JSON.stringify(jobs, null, 2), (err) => {
+    if (err) console.error('Failed to persist jobs:', err.message);
+  });
+};
+
+const countByStatus = (status) =>
+  jobs.filter((j) => j.status === status).length;
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+// Simulate real network/database latency.
+app.use((req, _res, next) => setTimeout(next, 250));
+
+// --- Login -----------------------------------------------------------------
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body || {};
+  const user = users.find(
+    (u) => u.username.toLowerCase() === String(username || '').toLowerCase()
+  );
+  if (!user || user.password !== password) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+  res.json({
+    token: `mock-token-${user.id}-${Date.now()}`,
+    user: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      role: user.role,
+    },
+  });
+});
+
+// --- Dashboard metrics -----------------------------------------------------
+app.get('/api/metrics', (_req, res) => {
+  res.json({
+    totalJobs: jobs.length,
+    running: countByStatus('running'),
+    completed: countByStatus('completed'),
+    delayed: countByStatus('delayed'),
+    pending: countByStatus('pending'),
+  });
+});
+
+// --- List jobs (filter by status + free-text search) -----------------------
+app.get('/api/jobs', (req, res) => {
+  const { status, search } = req.query;
+  let result = [...jobs];
+
+  if (status && status !== 'all') {
+    result = result.filter((j) => j.status === status);
+  }
+
+  if (search) {
+    const q = String(search).toLowerCase();
+    result = result.filter((j) =>
+      [j.customerName, j.mobile, j.vehicleNumber]
+        .filter(Boolean)
+        .some((v) => String(v).toLowerCase().includes(q))
+    );
+  }
+
+  res.json(result);
+});
+
+// --- Single job ------------------------------------------------------------
+app.get('/api/jobs/:id', (req, res) => {
+  const job = jobs.find((j) => j.id === req.params.id);
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+  res.json(job);
+});
+
+// --- Technicians -----------------------------------------------------------
+app.get('/api/technicians', (_req, res) => {
+  res.json(technicians);
+});
+
+// --- Create a job ----------------------------------------------------------
+app.post('/api/jobs', (req, res) => {
+  const body = req.body || {};
+
+  if (!body.customerName || String(body.customerName).trim() === '') {
+    return res.status(400).json({ error: 'customerName is required' });
+  }
+
+  const services = Array.isArray(body.services) ? body.services : [];
+  const subTotal = round2(
+    services.reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+  );
+  const gst = round2(subTotal * GST_RATE);
+  const grandTotal = round2(subTotal + gst);
+
+  const now = new Date();
+  const seq = String(jobs.length + 1).padStart(3, '0');
+  const id = `JC-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(
+    now.getDate()
+  ).padStart(2, '0')}-${seq}`;
+
+  const job = {
+    id,
+    jobNumber: id,
+    customerName: body.customerName,
+    mobile: body.mobile || body.contact || '',
+    vehicleModel: body.vehicleModel || body.model || '',
+    vehicleNumber: body.vehicleNumber || body.vehicleReg || '',
+    vehicleType: body.vehicleType || 'Car',
+    wheelType: body.wheelType || null,
+    tyreType: body.tyreType || null,
+    wheelSize: body.wheelSize || null,
+    status: body.status || 'running',
+    time: body.startingTime || now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    date: now
+      .toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+      .toUpperCase(),
+    technician: body.technician || 'Unassigned',
+    startTime: body.startingTime || '-',
+    expectedEnd: body.expectedEnd || '-',
+    actualEnd: null,
+    delay: null,
+    remarks: body.remarks || '',
+    services,
+    subTotal,
+    gst,
+    grandTotal,
+  };
+
+  jobs = [job, ...jobs];
+  persistJobs();
+  res.status(201).json(job);
+});
+
+// --- Health check ----------------------------------------------------------
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Badar Tyres mock API running at http://localhost:${PORT}`);
+  console.log('Endpoints:');
+  console.log('  POST /api/login');
+  console.log('  GET  /api/metrics');
+  console.log('  GET  /api/jobs?status=&search=');
+  console.log('  GET  /api/jobs/:id');
+  console.log('  GET  /api/technicians');
+  console.log('  POST /api/jobs');
+});

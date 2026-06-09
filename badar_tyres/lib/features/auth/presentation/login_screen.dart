@@ -1,0 +1,264 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../../core/api/api_client.dart';
+import '../../../core/repositories/auth_repository.dart';
+import '../../../core/theme/theme.dart';
+import '../../../core/widgets/custom_text_field.dart';
+import '../../../core/widgets/red_button.dart';
+import '../../dashboard/presentation/dashboard_screen.dart';
+
+/// Badar Tyres sign-in screen. A full-bleed garage photograph fades into the
+/// dark "Garage Charcoal" surface, with the centered brand logo, a welcome
+/// header, and the login form built from the shared [CustomTextField] and
+/// [RedButton] components.
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final AuthRepository _authRepository = AuthRepository();
+
+  bool _obscurePassword = true;
+  bool _rememberMe = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _authRepository.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _isLoading = true);
+    try {
+      await _authRepository.login(
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+
+    return Scaffold(
+      backgroundColor: AppColors.surface,
+      body: Stack(
+        children: [
+          // Garage photo anchored to the top, covering the upper portion.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Image.asset(
+              'assets/images/bg_1.png',
+              height: size.height * 0.55,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
+            ),
+          ),
+
+          // Gradient that darkens the photo and blends it into the surface.
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.surface.withValues(alpha: 0.30),
+                    AppColors.surface.withValues(alpha: 0.55),
+                    AppColors.surface,
+                    AppColors.surface,
+                  ],
+                  stops: const [0.0, 0.35, 0.56, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.containerPadding,
+              ),
+              child: Column(
+                children: [
+                  // Logo centered over the photographic area.
+                  Expanded(
+                    flex: 5,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/images/full_logo.svg',
+                        width: size.width * 0.55,
+                        semanticsLabel: 'Badar Tyres',
+                      ),
+                    ),
+                  ),
+
+                  // Login form on the dark surface.
+                  Expanded(
+                    flex: 6,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Welcome Back',
+                              textAlign: TextAlign.center,
+                              style: AppTypography.displayLg,
+                            ),
+                            const SizedBox(height: AppSpacing.base),
+                            Text(
+                              'Please login to your account',
+                              textAlign: TextAlign.center,
+                              style: AppTypography.bodyMd.copyWith(
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.stackLg),
+                            CustomTextField(
+                              hint: 'User Name',
+                              controller: _usernameController,
+                              prefixIcon: Icons.person_outline,
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.text,
+                              validator: (v) => (v == null || v.trim().isEmpty)
+                                  ? 'Please enter your user name'
+                                  : null,
+                            ),
+                            const SizedBox(height: AppSpacing.stackMd),
+                            CustomTextField(
+                              hint: 'Password',
+                              controller: _passwordController,
+                              prefixIcon: Icons.lock_outline,
+                              obscureText: _obscurePassword,
+                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => _handleLogin(),
+                              suffixIcon: _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              onSuffixTap: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                              validator: (v) => (v == null || v.isEmpty)
+                                  ? 'Please enter your password'
+                                  : null,
+                            ),
+                            const SizedBox(height: AppSpacing.base),
+                            _RememberAndForgotRow(
+                              rememberMe: _rememberMe,
+                              onRememberChanged: (v) =>
+                                  setState(() => _rememberMe = v),
+                              onForgot: () {},
+                            ),
+                            const SizedBox(height: AppSpacing.stackLg),
+                            RedButton(
+                              label: 'Login',
+                              isLoading: _isLoading,
+                              onPressed: _handleLogin,
+                            ),
+                            const SizedBox(height: AppSpacing.stackMd),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RememberAndForgotRow extends StatelessWidget {
+  const _RememberAndForgotRow({
+    required this.rememberMe,
+    required this.onRememberChanged,
+    required this.onForgot,
+  });
+
+  final bool rememberMe;
+  final ValueChanged<bool> onRememberChanged;
+  final VoidCallback onForgot;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          onTap: () => onRememberChanged(!rememberMe),
+          borderRadius: AppRadius.brBase,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Checkbox(
+                    value: rememberMe,
+                    onChanged: (v) => onRememberChanged(v ?? false),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.base),
+                Text(
+                  'Remember me',
+                  style: AppTypography.bodyMd.copyWith(
+                    fontSize: 14,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: onForgot,
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.onSurface,
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            'Forgot Password?',
+            style: AppTypography.bodyMd.copyWith(fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+}
