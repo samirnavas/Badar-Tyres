@@ -1,5 +1,41 @@
 [
   {
+    "id": "JC-20260609-008",
+    "jobNumber": "JC-20260609-008",
+    "customerName": "samir",
+    "mobile": "6681563885",
+    "vehicleModel": "bffb",
+    "vehicleNumber": "KL18T2660",
+    "vehicleType": "Car",
+    "wheelType": "Steel",
+    "tyreType": null,
+    "wheelSize": "20",
+    "status": "running",
+    "time": "6:16 PM",
+    "date": "09 JUN 2026",
+    "technician": "Anita George",
+    "startTime": "6:16 PM",
+    "expectedEnd": "-",
+    "actualEnd": null,
+    "delay": null,
+    "remarks": "",
+    "services": [
+      {
+        "name": "Brake Service",
+        "description": "Front & rear brake check & service",
+        "amount": 1800
+      },
+      {
+        "name": "Wheel Balancing",
+        "description": "jfvg",
+        "amount": 100
+      }
+    ],
+    "subTotal": 1900,
+    "gst": 342,
+    "grandTotal": 2242
+  },
+  {
     "id": "JC-240515-001",
     "jobNumber": "JC-240515-001",
     "customerName": "John Doe",
@@ -17,8 +53,16 @@
     "delay": "45 Min",
     "remarks": "Customer reported engine noise.",
     "services": [
-      { "name": "Oil Change", "description": "Engine oil & filter Change", "amount": 1200 },
-      { "name": "Brake Service", "description": "Front & rear brake check & service", "amount": 1800 }
+      {
+        "name": "Oil Change",
+        "description": "Engine oil & filter Change",
+        "amount": 1200
+      },
+      {
+        "name": "Brake Service",
+        "description": "Front & rear brake check & service",
+        "amount": 1800
+      }
     ],
     "subTotal": 3000,
     "gst": 540,
@@ -42,7 +86,11 @@
     "delay": "0 Min",
     "remarks": "",
     "services": [
-      { "name": "Wheel Alignment", "description": "4-wheel computerised alignment", "amount": 900 }
+      {
+        "name": "Wheel Alignment",
+        "description": "4-wheel computerised alignment",
+        "amount": 900
+      }
     ],
     "subTotal": 900,
     "gst": 162,
@@ -66,7 +114,11 @@
     "delay": null,
     "remarks": "",
     "services": [
-      { "name": "Tyre Replacement", "description": "2x front tyres", "amount": 8400 }
+      {
+        "name": "Tyre Replacement",
+        "description": "2x front tyres",
+        "amount": 8400
+      }
     ],
     "subTotal": 8400,
     "gst": 1512,
@@ -90,7 +142,11 @@
     "delay": null,
     "remarks": "AC servicing requested.",
     "services": [
-      { "name": "AC Service", "description": "Gas refill & filter clean", "amount": 2500 }
+      {
+        "name": "AC Service",
+        "description": "Gas refill & filter clean",
+        "amount": 2500
+      }
     ],
     "subTotal": 2500,
     "gst": 450,
@@ -114,7 +170,11 @@
     "delay": "20 Min",
     "remarks": "",
     "services": [
-      { "name": "General Service", "description": "Full periodic maintenance", "amount": 4200 }
+      {
+        "name": "General Service",
+        "description": "Full periodic maintenance",
+        "amount": 4200
+      }
     ],
     "subTotal": 4200,
     "gst": 756,
@@ -138,7 +198,11 @@
     "delay": "0 Min",
     "remarks": "",
     "services": [
-      { "name": "Battery Replacement", "description": "New 65Ah battery", "amount": 6500 }
+      {
+        "name": "Battery Replacement",
+        "description": "New 65Ah battery",
+        "amount": 6500
+      }
     ],
     "subTotal": 6500,
     "gst": 1170,
@@ -162,7 +226,11 @@
     "delay": null,
     "remarks": "Chain & sprocket check.",
     "services": [
-      { "name": "Chain Service", "description": "Clean, lube & tension", "amount": 600 }
+      {
+        "name": "Chain Service",
+        "description": "Clean, lube & tension",
+        "amount": 600
+      }
     ],
     "subTotal": 600,
     "gst": 108,

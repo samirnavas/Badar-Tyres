@@ -22,7 +22,9 @@ abstract final class BadarApiConfig {
     }
     if (_defineBaseUrl.isNotEmpty) return _defineBaseUrl;
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:3000/api';
+      // Updated to your laptop's Wi-Fi IP address so the physical device can connect over the local network.
+      // (10.0.2.2 only works for Android Emulators)
+      return 'http://10.52.113.209:3000/api';
     }
     return 'http://localhost:3000/api';
   }

@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/auth/session_store.dart';
 import '../../../core/repositories/auth_repository.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/red_button.dart';
-import '../../dashboard/presentation/dashboard_screen.dart';
+import '../../home/presentation/home_shell.dart';
 
 /// Badar Tyres sign-in screen. A full-bleed garage photograph fades into the
 /// dark "Garage Charcoal" surface, with the centered brand logo, a welcome
@@ -30,6 +31,22 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _restoreSavedCredentials();
+  }
+
+  Future<void> _restoreSavedCredentials() async {
+    final username = await SessionStore.instance.savedUsername;
+    final remember = await SessionStore.instance.rememberMe;
+    if (!mounted) return;
+    setState(() {
+      if (username != null) _usernameController.text = username;
+      _rememberMe = remember;
+    });
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
@@ -42,13 +59,14 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
     try {
-      await _authRepository.login(
+      final user = await _authRepository.login(
         _usernameController.text.trim(),
         _passwordController.text,
       );
+      await SessionStore.instance.save(user, rememberMe: _rememberMe);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(builder: (_) => const HomeShell()),
       );
     } on ApiException catch (e) {
       if (!mounted) return;

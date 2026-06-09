@@ -2,29 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/api/api_client.dart';
+import '../../../core/models/service_item.dart';
 import '../../../core/repositories/job_repository.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/red_button.dart';
-
-/// A single billable service / part line item on a job card.
-class ServiceItem {
-  const ServiceItem({
-    required this.name,
-    required this.description,
-    required this.amount,
-  });
-
-  final String name;
-  final String description;
-  final double amount;
-
-  Map<String, dynamic> toMap() => {
-        'name': name,
-        'description': description,
-        'amount': amount,
-      };
-}
+import '../../services/presentation/services_catalog_screen.dart';
 
 /// The Create Job Card form. Customer, vehicle, and job details are grouped
 /// into distinct tonal sections, followed by the service line-item table with
@@ -120,11 +103,8 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
   }
 
   Future<void> _addService() async {
-    final result = await showModalBottomSheet<ServiceItem>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _AddServiceSheet(),
+    final result = await Navigator.of(context).push<ServiceItem>(
+      MaterialPageRoute(builder: (_) => const ServicesCatalogScreen()),
     );
     if (result != null) setState(() => _services.add(result));
   }
@@ -716,114 +696,6 @@ class _TotalRow extends StatelessWidget {
         Text(label, style: labelStyle),
         Text(value, style: valueStyle),
       ],
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Add-service bottom sheet
-// ---------------------------------------------------------------------------
-
-class _AddServiceSheet extends StatefulWidget {
-  const _AddServiceSheet();
-
-  @override
-  State<_AddServiceSheet> createState() => _AddServiceSheetState();
-}
-
-class _AddServiceSheetState extends State<_AddServiceSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _amountController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-    Navigator.of(context).pop(
-      ServiceItem(
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
-        amount: double.tryParse(_amountController.text.trim()) ?? 0,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceContainerHigh,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-        ),
-        padding: const EdgeInsets.all(AppSpacing.containerPadding),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.outline,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.stackMd),
-              Text('Add Service', style: AppTypography.headlineMd),
-              const SizedBox(height: AppSpacing.stackMd),
-              CustomTextField(
-                label: 'Service / Part',
-                hint: 'e.g. Oil Change',
-                controller: _nameController,
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Required'
-                    : null,
-              ),
-              const SizedBox(height: AppSpacing.stackMd),
-              CustomTextField(
-                label: 'Description',
-                hint: 'Short description',
-                controller: _descriptionController,
-              ),
-              const SizedBox(height: AppSpacing.stackMd),
-              CustomTextField(
-                label: 'Amount (₹)',
-                hint: '0.00',
-                controller: _amountController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                ],
-                validator: (v) {
-                  final n = double.tryParse(v?.trim() ?? '');
-                  if (n == null || n <= 0) return 'Enter a valid amount';
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.stackLg),
-              RedButton(label: 'Add', onPressed: _submit),
-              const SizedBox(height: AppSpacing.base),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
