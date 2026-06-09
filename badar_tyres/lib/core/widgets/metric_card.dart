@@ -77,7 +77,7 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerHigh,
+      color: context.colors.surfaceContainerHigh,
       borderRadius: AppRadius.brLg,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -106,10 +106,10 @@ class MetricCard extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodyMd.copyWith(
+                      style: context.typography.bodyMd.copyWith(
                         fontSize: 13,
                         height: 1.1,
-                        color: AppColors.secondary,
+                        color: context.colors.secondary,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.stackSm),
@@ -117,7 +117,7 @@ class MetricCard extends StatelessWidget {
                       value,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.headlineMd.copyWith(
+                      style: context.typography.headlineMd.copyWith(
                         color: accentColor,
                         fontWeight: FontWeight.w700,
                         height: 1.0,

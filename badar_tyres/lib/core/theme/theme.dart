@@ -113,8 +113,8 @@ abstract final class AppLightColors {
   static const Color inverseSurface = Color(0xFF343A40);
   static const Color inverseOnSurface = Color(0xFFF8F9FA);
 
-  static const Color outline = Color(0xFFCED4DA);
-  static const Color outlineVariant = Color(0xFFE9ECEF);
+  static const Color outline = Color(0xFFADB5BD);
+  static const Color outlineVariant = Color(0xFFDEE2E6);
 
   // Red
   static const Color primary = Color(0xFFC94242);
@@ -909,4 +909,21 @@ abstract final class AppTheme {
       visualDensity: VisualDensity.adaptivePlatformDensity,
     );
   }
+}
+
+class AppTypographyData {
+  final BuildContext context;
+  AppTypographyData(this.context);
+
+  TextStyle get displayLg => AppTypography.displayLg.copyWith(color: context.colors.onSurface);
+  TextStyle get displayLgMobile => AppTypography.displayLgMobile.copyWith(color: context.colors.onSurface);
+  TextStyle get headlineMd => AppTypography.headlineMd.copyWith(color: context.colors.onSurface);
+  TextStyle get titleSm => AppTypography.titleSm.copyWith(color: context.colors.onSurface);
+  TextStyle get bodyMd => AppTypography.bodyMd.copyWith(color: context.colors.onSurface);
+  TextStyle get labelSm => AppTypography.labelSm.copyWith(color: context.colors.onSurfaceVariant);
+}
+
+extension ThemeExt on BuildContext {
+  ColorScheme get colors => Theme.of(this).colorScheme;
+  AppTypographyData get typography => AppTypographyData(this);
 }

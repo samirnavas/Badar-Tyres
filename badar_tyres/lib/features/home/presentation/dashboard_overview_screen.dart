@@ -66,7 +66,7 @@ class _DashboardOverviewScreenState extends State<DashboardOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
@@ -78,8 +78,8 @@ class _DashboardOverviewScreenState extends State<DashboardOverviewScreen> {
         ],
       ),
       body: RefreshIndicator(
-        color: AppColors.primary,
-        backgroundColor: AppColors.surfaceContainerHigh,
+        color: context.colors.primary,
+        backgroundColor: context.colors.surfaceContainerHigh,
         onRefresh: _loadMetrics,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
@@ -89,13 +89,13 @@ class _DashboardOverviewScreenState extends State<DashboardOverviewScreen> {
             AppSpacing.stackLg,
           ),
           children: [
-            Text('Welcome back', style: AppTypography.bodyMd.copyWith(
-              color: AppColors.secondary,
+            Text('Welcome back', style: context.typography.bodyMd.copyWith(
+              color: context.colors.secondary,
             )),
             const SizedBox(height: AppSpacing.stackSm),
-            Text('Badar Tyres', style: AppTypography.displayLgMobile),
+            Text('Badar Tyres', style: context.typography.displayLgMobile),
             const SizedBox(height: AppSpacing.stackLg),
-            Text('Overview', style: AppTypography.titleSm.copyWith(fontSize: 16)),
+            Text('Overview', style: context.typography.titleSm.copyWith(fontSize: 16)),
             const SizedBox(height: AppSpacing.gutter),
             GridView.count(
               shrinkWrap: true,
@@ -113,7 +113,7 @@ class _DashboardOverviewScreenState extends State<DashboardOverviewScreen> {
             ),
             const SizedBox(height: AppSpacing.stackLg),
             Text('Quick Actions',
-                style: AppTypography.titleSm.copyWith(fontSize: 16)),
+                style: context.typography.titleSm.copyWith(fontSize: 16)),
             const SizedBox(height: AppSpacing.gutter),
             _QuickAction(
               icon: Icons.add_circle_outline,
@@ -158,7 +158,7 @@ class _QuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerLow,
+      color: context.colors.surfaceContainerLow,
       borderRadius: AppRadius.brLg,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -166,7 +166,7 @@ class _QuickAction extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: AppRadius.brLg,
-            border: Border.all(color: AppColors.outlineVariant, width: 1),
+            border: Border.all(color: context.colors.outlineVariant, width: 1),
           ),
           padding: const EdgeInsets.all(AppSpacing.stackMd),
           child: Row(
@@ -175,11 +175,11 @@ class _QuickAction extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppStatusColors.tint(AppColors.primaryContainer),
+                  color: AppStatusColors.tint(context.colors.primaryContainer),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(icon, color: AppColors.primaryContainer, size: 24),
+                child: Icon(icon, color: context.colors.primaryContainer, size: 24),
               ),
               const SizedBox(width: AppSpacing.gutter),
               Expanded(
@@ -188,21 +188,21 @@ class _QuickAction extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(title,
-                        style: AppTypography.bodyMd
+                        style: context.typography.bodyMd
                             .copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: AppTypography.bodyMd.copyWith(
+                      style: context.typography.bodyMd.copyWith(
                         fontSize: 13,
-                        color: AppColors.secondary,
+                        color: context.colors.secondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.onSurfaceVariant),
+              Icon(Icons.chevron_right_rounded,
+                  color: context.colors.onSurfaceVariant),
             ],
           ),
         ),

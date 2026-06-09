@@ -62,9 +62,9 @@ class RedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color fg =
-        _outlined ? AppColors.primaryContainer : AppColors.onPrimaryContainer;
+        _outlined ? context.colors.primaryContainer : context.colors.onPrimaryContainer;
 
-    final textStyle = AppTypography.labelSm.copyWith(
+    final textStyle = context.typography.labelSm.copyWith(
       fontSize: 15,
       fontWeight: FontWeight.w700,
       letterSpacing: 1.0,
@@ -98,22 +98,22 @@ class RedButton extends StatelessWidget {
           );
 
     final VoidCallback? handler = isLoading ? null : onPressed;
-    final button = _outlined ? _buildOutlined(handler, content) : _buildFilled(handler, content);
+    final button = _outlined ? _buildOutlined(context, handler, content) : _buildFilled(context, handler, content);
 
     if (!expand) return button;
     return SizedBox(width: double.infinity, child: button);
   }
 
-  Widget _buildFilled(VoidCallback? handler, Widget content) {
+  Widget _buildFilled(BuildContext context, VoidCallback? handler, Widget content) {
     return ElevatedButton(
       onPressed: handler,
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primaryContainer,
-        foregroundColor: AppColors.onPrimaryContainer,
+        backgroundColor: context.colors.primaryContainer,
+        foregroundColor: context.colors.onPrimaryContainer,
         disabledBackgroundColor:
-            AppColors.primaryContainer.withValues(alpha: 0.45),
+            context.colors.primaryContainer.withValues(alpha: 0.45),
         disabledForegroundColor:
-            AppColors.onPrimaryContainer.withValues(alpha: 0.8),
+            context.colors.onPrimaryContainer.withValues(alpha: 0.8),
         elevation: 0,
         shadowColor: Colors.transparent,
         minimumSize: const Size(0, _height),
@@ -124,18 +124,18 @@ class RedButton extends StatelessWidget {
     );
   }
 
-  Widget _buildOutlined(VoidCallback? handler, Widget content) {
+  Widget _buildOutlined(BuildContext context, VoidCallback? handler, Widget content) {
     return OutlinedButton(
       onPressed: handler,
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.primaryContainer,
+        foregroundColor: context.colors.primaryContainer,
         backgroundColor: Colors.transparent,
         disabledForegroundColor:
-            AppColors.primaryContainer.withValues(alpha: 0.45),
+            context.colors.primaryContainer.withValues(alpha: 0.45),
         side: BorderSide(
           color: handler == null
-              ? AppColors.primaryContainer.withValues(alpha: 0.45)
-              : AppColors.primaryContainer,
+              ? context.colors.primaryContainer.withValues(alpha: 0.45)
+              : context.colors.primaryContainer,
           width: 1.5,
         ),
         minimumSize: const Size(0, _height),

@@ -175,6 +175,7 @@ app.get('/api/vehicles', (_req, res) => {
         customerName: j.customerName,
         mobile: j.mobile,
         lastJobDate: j.date,
+        lastJobId: j.id,
       });
     }
   }

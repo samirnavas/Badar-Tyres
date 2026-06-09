@@ -10,6 +10,7 @@ import '../../../core/theme/theme.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/job_list_tile.dart';
 import '../../../core/widgets/metric_card.dart';
+import '../../job_card/presentation/job_card_preview_screen.dart';
 
 /// The Jobs dashboard: summary metric cards, a sticky filter tab bar
 /// (All Jobs / Running / Completed / Delayed), a search field, and the
@@ -119,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
         title: const Text('Jobs'),
@@ -131,12 +132,15 @@ class _DashboardScreenState extends State<DashboardScreen>
           const SizedBox(width: AppSpacing.base),
         ],
       ),
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        backgroundColor: AppColors.surfaceContainerHigh,
-        onRefresh: _refreshAll,
-        child: CustomScrollView(
-          slivers: [
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.opaque,
+        child: RefreshIndicator(
+          color: context.colors.primary,
+          backgroundColor: context.colors.surfaceContainerHigh,
+          onRefresh: _refreshAll,
+          child: CustomScrollView(
+            slivers: [
             SliverToBoxAdapter(child: _buildMetrics()),
             SliverPersistentHeader(
               pinned: true,
@@ -146,14 +150,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,
                   indicatorSize: TabBarIndicatorSize.label,
-                  indicatorColor: AppColors.primaryContainer,
+                  indicatorColor: context.colors.primaryContainer,
                   indicatorWeight: 2.5,
                   dividerColor: Colors.transparent,
-                  labelColor: AppColors.primaryContainer,
-                  unselectedLabelColor: AppColors.secondary,
-                  labelStyle: AppTypography.bodyMd
+                  labelColor: context.colors.primaryContainer,
+                  unselectedLabelColor: context.colors.secondary,
+                  labelStyle: context.typography.bodyMd
                       .copyWith(fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: AppTypography.bodyMd,
+                  unselectedLabelStyle: context.typography.bodyMd,
                   labelPadding:
                       const EdgeInsets.only(right: AppSpacing.stackLg),
                   tabs: [for (final t in _tabs) Tab(text: t)],
@@ -164,6 +168,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             _buildContent(),
           ],
         ),
+      ),
       ),
     );
   }
@@ -176,12 +181,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       );
     }
     if (_loadingJobs) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         hasScrollBody: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 64),
+          padding: const EdgeInsets.symmetric(vertical: 64),
           child: Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+            child: CircularProgressIndicator(color: context.colors.primary),
           ),
         ),
       );
@@ -217,7 +222,17 @@ class _DashboardScreenState extends State<DashboardScreen>
             expectedEnd: j.expectedEnd,
             actualEnd: j.actualEnd,
             delay: j.delay,
-            onTap: () {},
+            onTap: () async {
+              FocusManager.instance.primaryFocus?.unfocus();
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => JobCardPreviewScreen(job: j),
+                ),
+              );
+              if (context.mounted) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              }
+            },
           );
         },
       ),
@@ -289,7 +304,7 @@ class _PinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
   ) {
     return Container(
       height: _height,
-      color: AppColors.surface,
+      color: context.colors.surface,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.containerPadding,
       ),
@@ -298,10 +313,10 @@ class _PinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(child: tabBar),
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: AppColors.surfaceContainerHigh,
+            color: context.colors.surfaceContainerHigh,
           ),
         ],
       ),
@@ -323,12 +338,12 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.inbox_outlined,
-              size: 48, color: AppColors.secondary),
+          Icon(Icons.inbox_outlined,
+              size: 48, color: context.colors.secondary),
           const SizedBox(height: AppSpacing.stackMd),
           Text(
             'No jobs found',
-            style: AppTypography.titleSm.copyWith(color: AppColors.secondary),
+            style: context.typography.titleSm.copyWith(color: context.colors.secondary),
           ),
         ],
       ),
@@ -349,20 +364,20 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_off_rounded,
-              size: 48, color: AppColors.secondary),
+          Icon(Icons.cloud_off_rounded,
+              size: 48, color: context.colors.secondary),
           const SizedBox(height: AppSpacing.stackMd),
           Text(
             'Unable to load jobs',
-            style: AppTypography.titleSm,
+            style: context.typography.titleSm,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.base),
           Text(
             message,
-            style: AppTypography.bodyMd.copyWith(
+            style: context.typography.bodyMd.copyWith(
               fontSize: 13,
-              color: AppColors.secondary,
+              color: context.colors.secondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -377,4 +392,3 @@ class _ErrorState extends StatelessWidget {
     );
   }
 }
-

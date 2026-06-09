@@ -112,15 +112,15 @@ class CustomTextField extends StatelessWidget {
       maxLength: maxLength,
       inputFormatters: inputFormatters,
       autovalidateMode: autovalidateMode,
-      cursorColor: AppColors.primary,
-      style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
+      cursorColor: context.colors.primary,
+      style: context.typography.bodyMd.copyWith(color: context.colors.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: AppTypography.bodyMd.copyWith(color: AppColors.placeholder),
+        hintStyle: context.typography.bodyMd.copyWith(color: context.colors.onSurfaceVariant.withValues(alpha: 0.5)),
         filled: true,
         fillColor: enabled
-            ? AppColors.surfaceContainerHigh
-            : AppColors.surfaceContainer,
+            ? context.colors.surfaceContainerHigh
+            : context.colors.surfaceContainer,
         isDense: false,
         // Pixel-perfect: 16px internal padding all round.
         contentPadding: const EdgeInsets.symmetric(
@@ -130,24 +130,24 @@ class CustomTextField extends StatelessWidget {
         counterText: '',
         prefixIcon: prefixIcon == null
             ? null
-            : Icon(prefixIcon, size: 20, color: AppColors.onSurfaceVariant),
+            : Icon(prefixIcon, size: 20, color: context.colors.onSurfaceVariant),
         suffixIcon: suffixIcon == null
             ? null
             : IconButton(
                 icon: Icon(suffixIcon, size: 20),
-                color: AppColors.onSurfaceVariant,
+                color: context.colors.onSurfaceVariant,
                 splashRadius: 20,
                 onPressed: onSuffixTap,
               ),
-        border: _border(AppColors.outlineVariant, 1),
-        enabledBorder: _border(AppColors.outlineVariant, 1),
-        disabledBorder: _border(AppColors.outlineVariant, 1),
-        focusedBorder: _border(AppColors.primary, 2),
-        errorBorder: _border(AppColors.error, 1.5),
-        focusedErrorBorder: _border(AppColors.error, 2),
-        errorStyle: AppTypography.labelSm.copyWith(
+        border: _border(context.colors.outlineVariant, 1),
+        enabledBorder: _border(context.colors.outlineVariant, 1),
+        disabledBorder: _border(context.colors.outlineVariant, 1),
+        focusedBorder: _border(context.colors.primary, 2),
+        errorBorder: _border(context.colors.error, 1.5),
+        focusedErrorBorder: _border(context.colors.error, 2),
+        errorStyle: context.typography.labelSm.copyWith(
           letterSpacing: 0,
-          color: AppColors.error,
+          color: context.colors.error,
         ),
       ),
     );
@@ -182,19 +182,19 @@ class _FieldLabel extends StatelessWidget {
     return Text.rich(
       TextSpan(
         text: text,
-        style: AppTypography.bodyMd.copyWith(
+        style: context.typography.bodyMd.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: AppColors.onSurface,
+          color: context.colors.onSurface,
         ),
         children: isRequired
             ? [
                 TextSpan(
                   text: ' *',
-                  style: AppTypography.bodyMd.copyWith(
+                  style: context.typography.bodyMd.copyWith(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.error,
+                    color: context.colors.error,
                   ),
                 ),
               ]

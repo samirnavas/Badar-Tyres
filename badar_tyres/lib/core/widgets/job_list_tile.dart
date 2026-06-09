@@ -76,13 +76,16 @@ class JobListTile extends StatelessWidget {
 
   final VoidCallback? onTap;
 
-  static const Color _muted = AppColors.secondary;
+
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerHigh,
-      borderRadius: AppRadius.brLg,
+      color: context.colors.surfaceContainerHigh,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.brLg,
+        side: BorderSide(color: context.colors.outlineVariant.withValues(alpha: 0.5)),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -91,11 +94,11 @@ class JobListTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(),
+              _buildHeader(context),
               const _TileDivider(),
-              _buildTechnicianRow(),
+              _buildTechnicianRow(context),
               const _TileDivider(),
-              _buildTimingRow(),
+              _buildTimingRow(context),
             ],
           ),
         ),
@@ -103,7 +106,8 @@ class JobListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final muted = context.colors.secondary;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -126,9 +130,9 @@ class JobListTile extends StatelessWidget {
                 jobNumber,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.labelSm.copyWith(
+                style: context.typography.labelSm.copyWith(
                   letterSpacing: 0,
-                  color: _muted,
+                  color: muted,
                 ),
               ),
               const SizedBox(height: 2),
@@ -136,16 +140,16 @@ class JobListTile extends StatelessWidget {
                 customerName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.titleSm,
+                style: context.typography.titleSm,
               ),
               const SizedBox(height: 2),
               Text(
                 '$vehicleModel • $vehicleNumber',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodyMd.copyWith(
+                style: context.typography.bodyMd.copyWith(
                   fontSize: 13,
-                  color: _muted,
+                  color: muted,
                 ),
               ),
             ],
@@ -160,13 +164,13 @@ class JobListTile extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.access_time, size: 13, color: _muted),
+                Icon(Icons.access_time, size: 13, color: muted),
                 const SizedBox(width: 4),
                 Text(
                   time,
-                  style: AppTypography.bodyMd.copyWith(
+                  style: context.typography.bodyMd.copyWith(
                     fontSize: 13,
-                    color: AppColors.onSurface,
+                    color: context.colors.onSurface,
                   ),
                 ),
               ],
@@ -174,9 +178,9 @@ class JobListTile extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               date,
-              style: AppTypography.labelSm.copyWith(
+              style: context.typography.labelSm.copyWith(
                 letterSpacing: 0,
-                color: _muted,
+                color: muted,
               ),
             ),
           ],
@@ -185,12 +189,13 @@ class JobListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildTechnicianRow() {
+  Widget _buildTechnicianRow(BuildContext context) {
+    final muted = context.colors.secondary;
     return Row(
       children: [
         Text(
           'Technician',
-          style: AppTypography.bodyMd.copyWith(fontSize: 13, color: _muted),
+          style: context.typography.bodyMd.copyWith(fontSize: 13, color: muted),
         ),
         const Spacer(),
         Flexible(
@@ -199,7 +204,7 @@ class JobListTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.right,
-            style: AppTypography.bodyMd.copyWith(
+            style: context.typography.bodyMd.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -209,7 +214,8 @@ class JobListTile extends StatelessWidget {
     );
   }
 
-  Widget _buildTimingRow() {
+  Widget _buildTimingRow(BuildContext context) {
+    final muted = context.colors.secondary;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -220,7 +226,7 @@ class JobListTile extends StatelessWidget {
           child: _TimingCell(
             label: 'Delay',
             value: delay ?? '-',
-            valueColor: delay == null ? _muted : status.color,
+            valueColor: delay == null ? muted : status.color,
           ),
         ),
       ],
@@ -243,7 +249,7 @@ class _StatusPill extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: AppTypography.labelSm.copyWith(
+        style: context.typography.labelSm.copyWith(
           letterSpacing: 0.2,
           fontWeight: FontWeight.w600,
           color: status.color,
@@ -273,9 +279,9 @@ class _TimingCell extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.labelSm.copyWith(
+          style: context.typography.labelSm.copyWith(
             letterSpacing: 0,
-            color: AppColors.secondary,
+            color: context.colors.secondary,
           ),
         ),
         const SizedBox(height: AppSpacing.stackSm),
@@ -283,10 +289,10 @@ class _TimingCell extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.bodyMd.copyWith(
+          style: context.typography.bodyMd.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: valueColor ?? AppColors.onSurface,
+            color: valueColor ?? context.colors.onSurface,
           ),
         ),
       ],
@@ -299,12 +305,12 @@ class _TileDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: AppSpacing.gutter),
       child: Divider(
         height: 1,
         thickness: 1,
-        color: AppColors.surfaceBright,
+        color: context.colors.surfaceBright,
       ),
     );
   }

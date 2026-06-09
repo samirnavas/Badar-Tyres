@@ -47,7 +47,7 @@ class MoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       appBar: AppBar(title: const Text('More')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -104,9 +104,9 @@ class _ProfileHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.stackMd),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+        color: context.colors.surfaceContainerLow,
         borderRadius: AppRadius.brLg,
-        border: Border.all(color: AppColors.outlineVariant, width: 1),
+        border: Border.all(color: context.colors.outlineVariant, width: 1),
       ),
       child: Row(
         children: [
@@ -114,13 +114,13 @@ class _ProfileHeader extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppStatusColors.tint(AppColors.primaryContainer),
+              color: AppStatusColors.tint(context.colors.primaryContainer),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: const Icon(
+            child: Icon(
               Icons.person_rounded,
-              color: AppColors.primaryContainer,
+              color: context.colors.primaryContainer,
               size: 30,
             ),
           ),
@@ -130,13 +130,13 @@ class _ProfileHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Badar Tyres', style: AppTypography.titleSm),
+                Text('Badar Tyres', style: context.typography.titleSm),
                 const SizedBox(height: 2),
                 Text(
                   'Workshop Admin',
-                  style: AppTypography.bodyMd.copyWith(
+                  style: context.typography.bodyMd.copyWith(
                     fontSize: 13,
-                    color: AppColors.secondary,
+                    color: context.colors.secondary,
                   ),
                 ),
               ],
@@ -163,11 +163,11 @@ class _MoreTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? AppColors.primaryContainer : AppColors.onSurface;
+    final color = danger ? context.colors.primaryContainer : context.colors.onSurface;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.base),
       child: Material(
-        color: AppColors.surfaceContainerLow,
+        color: context.colors.surfaceContainerLow,
         borderRadius: AppRadius.brBase,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -184,15 +184,15 @@ class _MoreTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     label,
-                    style: AppTypography.bodyMd.copyWith(
+                    style: context.typography.bodyMd.copyWith(
                       color: color,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
                 if (!danger)
-                  const Icon(Icons.chevron_right_rounded,
-                      color: AppColors.onSurfaceVariant),
+                  Icon(Icons.chevron_right_rounded,
+                      color: context.colors.onSurfaceVariant),
               ],
             ),
           ),

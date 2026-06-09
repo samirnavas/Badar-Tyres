@@ -6,6 +6,7 @@ class Vehicle {
     required this.customerName,
     required this.mobile,
     required this.lastJobDate,
+    required this.lastJobId,
   });
 
   final String vehicleNumber;
@@ -14,6 +15,7 @@ class Vehicle {
   final String customerName;
   final String mobile;
   final String lastJobDate;
+  final String lastJobId;
 
   factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
         vehicleNumber: json['vehicleNumber'] as String? ?? '',
@@ -22,5 +24,6 @@ class Vehicle {
         customerName: json['customerName'] as String? ?? '',
         mobile: json['mobile'] as String? ?? '',
         lastJobDate: json['lastJobDate'] as String? ?? '',
+        lastJobId: json['lastJobId'] as String? ?? '',
       );
 }

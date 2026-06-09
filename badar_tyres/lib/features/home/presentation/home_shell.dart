@@ -49,24 +49,31 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: IndexedStack(
-        index: _stackIndex,
-        children: [
-          DashboardOverviewScreen(
-            onCreateJob: _openCreateJob,
-            onViewJobs: () => _onNavTap(1),
-          ),
-          DashboardScreen(refreshTick: _jobsRefreshTick),
-          const VehiclesScreen(),
-          const MoreScreen(),
-        ],
-      ),
-      bottomNavigationBar: _AppBottomBar(
-        currentIndex: _navIndex,
-        onTap: _onNavTap,
-        onCreateJob: _openCreateJob,
+    return PopScope(
+      canPop: _navIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        setState(() => _navIndex = 0);
+      },
+      child: Scaffold(
+        backgroundColor: context.colors.surface,
+        body: IndexedStack(
+          index: _stackIndex,
+          children: [
+            DashboardOverviewScreen(
+              onCreateJob: _openCreateJob,
+              onViewJobs: () => _onNavTap(1),
+            ),
+            DashboardScreen(refreshTick: _jobsRefreshTick),
+            const VehiclesScreen(),
+            const MoreScreen(),
+          ],
+        ),
+        bottomNavigationBar: _AppBottomBar(
+          currentIndex: _navIndex,
+          onTap: _onNavTap,
+          onCreateJob: _openCreateJob,
+        ),
       ),
     );
   }
@@ -90,10 +97,10 @@ class _AppBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+      decoration: BoxDecoration(
+        color: context.colors.surfaceContainerLowest,
         border: Border(
-          top: BorderSide(color: AppColors.surfaceContainerHigh, width: 1),
+          top: BorderSide(color: context.colors.surfaceContainerHigh, width: 1),
         ),
       ),
       child: SafeArea(
@@ -169,7 +176,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        selected ? AppColors.primaryContainer : AppColors.onSurfaceVariant;
+        selected ? context.colors.primaryContainer : context.colors.onSurfaceVariant;
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -180,7 +187,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: AppTypography.labelSm.copyWith(
+              style: context.typography.labelSm.copyWith(
                 letterSpacing: 0,
                 color: color,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
@@ -204,25 +211,25 @@ class _CreateJobButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
-          color: AppColors.primaryContainer,
+          color: context.colors.primaryContainer,
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: const SizedBox(
+            child: SizedBox(
               width: 52,
               height: 52,
               child: Icon(Icons.add,
-                  color: AppColors.onPrimaryContainer, size: 28),
+                  color: context.colors.onPrimaryContainer, size: 28),
             ),
           ),
         ),
         const SizedBox(height: 2),
         Text(
           'Create Job',
-          style: AppTypography.labelSm.copyWith(
+          style: context.typography.labelSm.copyWith(
             letterSpacing: 0,
-            color: AppColors.onSurfaceVariant,
+            color: context.colors.onSurfaceVariant,
           ),
         ),
       ],

@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final size = MediaQuery.sizeOf(context);
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       body: Stack(
         children: [
           // Garage photo anchored to the top, covering the upper portion.
@@ -107,10 +107,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.surface.withValues(alpha: 0.30),
-                    AppColors.surface.withValues(alpha: 0.55),
-                    AppColors.surface,
-                    AppColors.surface,
+                    context.colors.surface.withValues(alpha: 0.30),
+                    context.colors.surface.withValues(alpha: 0.55),
+                    context.colors.surface,
+                    context.colors.surface,
                   ],
                   stops: const [0.0, 0.35, 0.56, 1.0],
                 ),
@@ -149,14 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               'Welcome Back',
                               textAlign: TextAlign.center,
-                              style: AppTypography.displayLg,
+                              style: context.typography.displayLg,
                             ),
                             const SizedBox(height: AppSpacing.base),
                             Text(
                               'Please login to your account',
                               textAlign: TextAlign.center,
-                              style: AppTypography.bodyMd.copyWith(
-                                color: AppColors.secondary,
+                              style: context.typography.bodyMd.copyWith(
+                                color: context.colors.secondary,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.stackLg),
@@ -254,9 +254,9 @@ class _RememberAndForgotRow extends StatelessWidget {
                 const SizedBox(width: AppSpacing.base),
                 Text(
                   'Remember me',
-                  style: AppTypography.bodyMd.copyWith(
+                  style: context.typography.bodyMd.copyWith(
                     fontSize: 14,
-                    color: AppColors.onSurface,
+                    color: context.colors.onSurface,
                   ),
                 ),
               ],
@@ -266,14 +266,14 @@ class _RememberAndForgotRow extends StatelessWidget {
         TextButton(
           onPressed: onForgot,
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.onSurface,
+            foregroundColor: context.colors.onSurface,
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Text(
             'Forgot Password?',
-            style: AppTypography.bodyMd.copyWith(fontSize: 14),
+            style: context.typography.bodyMd.copyWith(fontSize: 14),
           ),
         ),
       ],

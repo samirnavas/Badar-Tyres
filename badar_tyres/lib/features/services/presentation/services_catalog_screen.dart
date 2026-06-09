@@ -63,7 +63,7 @@ class ServicesCatalogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -101,7 +101,7 @@ class _ServiceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceContainerLow,
+      color: context.colors.surfaceContainerLow,
       borderRadius: AppRadius.brLg,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -109,7 +109,7 @@ class _ServiceTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: AppRadius.brLg,
-            border: Border.all(color: AppColors.outlineVariant, width: 1),
+            border: Border.all(color: context.colors.outlineVariant, width: 1),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.base,
@@ -121,7 +121,7 @@ class _ServiceTile extends StatelessWidget {
               Icon(
                 definition.icon,
                 size: 34,
-                color: AppColors.primaryContainer,
+                color: context.colors.primaryContainer,
               ),
               const SizedBox(height: AppSpacing.gutter),
               Text(
@@ -129,10 +129,10 @@ class _ServiceTile extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodyMd.copyWith(
+                style: context.typography.bodyMd.copyWith(
                   fontSize: 12.5,
                   height: 1.2,
-                  color: AppColors.onSurface,
+                  color: context.colors.onSurface,
                 ),
               ),
             ],
@@ -191,8 +191,8 @@ class _ServiceAmountSheetState extends State<_ServiceAmountSheet> {
         bottom: MediaQuery.viewInsetsOf(context).bottom,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surfaceContainerHigh,
+        decoration: BoxDecoration(
+          color: context.colors.surfaceContainerHigh,
           borderRadius:
               BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
         ),
@@ -208,7 +208,7 @@ class _ServiceAmountSheetState extends State<_ServiceAmountSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.outline,
+                    color: context.colors.outline,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -218,14 +218,14 @@ class _ServiceAmountSheetState extends State<_ServiceAmountSheet> {
                 children: [
                   Icon(
                     widget.definition.icon,
-                    color: AppColors.primaryContainer,
+                    color: context.colors.primaryContainer,
                     size: 28,
                   ),
                   const SizedBox(width: AppSpacing.gutter),
                   Expanded(
                     child: Text(
                       widget.definition.name,
-                      style: AppTypography.headlineMd.copyWith(fontSize: 20),
+                      style: context.typography.headlineMd.copyWith(fontSize: 20),
                     ),
                   ),
                 ],

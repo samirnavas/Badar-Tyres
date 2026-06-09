@@ -143,7 +143,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.colors.surface,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
@@ -283,11 +283,11 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
                 _TotalRow(label: 'Sub Total', value: _money(_subTotal)),
                 const SizedBox(height: AppSpacing.base),
                 _TotalRow(label: 'GST (18%)', value: _money(_gst)),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: AppSpacing.gutter),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.gutter),
                   child: Divider(
                     height: 1,
-                    color: AppColors.surfaceContainerHighest,
+                    color: context.colors.surfaceContainerHighest,
                   ),
                 ),
                 _TotalRow(
@@ -328,9 +328,9 @@ class _FormSection extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: AppSpacing.stackMd),
       padding: const EdgeInsets.all(AppSpacing.stackMd),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+        color: context.colors.surfaceContainerLow,
         borderRadius: AppRadius.brLg,
-        border: Border.all(color: AppColors.outlineVariant, width: 1),
+        border: Border.all(color: context.colors.outlineVariant, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,14 +341,14 @@ class _FormSection extends StatelessWidget {
                 width: 4,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryContainer,
+                  color: context.colors.primaryContainer,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(width: AppSpacing.base),
               Text(
                 title,
-                style: AppTypography.titleSm.copyWith(fontSize: 16),
+                style: context.typography.titleSm.copyWith(fontSize: 16),
               ),
             ],
           ),
@@ -384,10 +384,10 @@ class _RadioGroup extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTypography.bodyMd.copyWith(
+          style: context.typography.bodyMd.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.onSurface,
+            color: context.colors.onSurface,
           ),
         ),
         const SizedBox(height: AppSpacing.base),
@@ -422,7 +422,7 @@ class _RadioOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color =
-        selected ? AppColors.primaryContainer : AppColors.outline;
+        selected ? context.colors.primaryContainer : context.colors.outline;
     return InkWell(
       onTap: onTap,
       borderRadius: AppRadius.brFull,
@@ -444,9 +444,9 @@ class _RadioOption extends StatelessWidget {
                   ? Container(
                       width: 10,
                       height: 10,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primaryContainer,
+                        color: context.colors.primaryContainer,
                       ),
                     )
                   : null,
@@ -454,8 +454,8 @@ class _RadioOption extends StatelessWidget {
             const SizedBox(width: AppSpacing.base),
             Text(
               label,
-              style: AppTypography.bodyMd.copyWith(
-                color: AppColors.onSurface,
+              style: context.typography.bodyMd.copyWith(
+                color: context.colors.onSurface,
                 fontSize: 15,
               ),
             ),
@@ -488,36 +488,36 @@ class _TechnicianDropdown extends StatelessWidget {
       children: [
         Text(
           'Assign Technician',
-          style: AppTypography.bodyMd.copyWith(
+          style: context.typography.bodyMd.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: AppColors.onSurface,
+            color: context.colors.onSurface,
           ),
         ),
         const SizedBox(height: AppSpacing.base),
         DropdownButtonFormField<String>(
           initialValue: value,
           isExpanded: true,
-          dropdownColor: AppColors.surfaceContainerHigh,
+          dropdownColor: context.colors.surfaceContainerHigh,
           borderRadius: AppRadius.brBase,
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
-          iconEnabledColor: AppColors.onSurfaceVariant,
-          style: AppTypography.bodyMd.copyWith(color: AppColors.onSurface),
+          iconEnabledColor: context.colors.onSurfaceVariant,
+          style: context.typography.bodyMd.copyWith(color: context.colors.onSurface),
           hint: Text(
             'Technician',
             style:
-                AppTypography.bodyMd.copyWith(color: AppColors.placeholder),
+                context.typography.bodyMd.copyWith(color: context.colors.onSurfaceVariant.withValues(alpha: 0.5)),
           ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.surfaceContainerHigh,
+            fillColor: context.colors.surfaceContainerHigh,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
             ),
-            border: _border(AppColors.outlineVariant, 1),
-            enabledBorder: _border(AppColors.outlineVariant, 1),
-            focusedBorder: _border(AppColors.primary, 2),
+            border: _border(context.colors.outlineVariant, 1),
+            enabledBorder: _border(context.colors.outlineVariant, 1),
+            focusedBorder: _border(context.colors.primary, 2),
           ),
           items: [
             for (final t in options)
@@ -550,7 +550,7 @@ class _ServiceTable extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: AppRadius.brBase,
-        border: Border.all(color: AppColors.outlineVariant, width: 1),
+        border: Border.all(color: context.colors.outlineVariant, width: 1),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -561,9 +561,9 @@ class _ServiceTable extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.stackMd),
               child: Text(
                 'No services added',
-                style: AppTypography.bodyMd.copyWith(
+                style: context.typography.bodyMd.copyWith(
                   fontSize: 13,
-                  color: AppColors.secondary,
+                  color: context.colors.secondary,
                 ),
               ),
             )
@@ -593,13 +593,13 @@ class _ServiceHeaderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = AppTypography.labelSm.copyWith(
+    final style = context.typography.labelSm.copyWith(
       letterSpacing: 0,
       fontWeight: FontWeight.w600,
-      color: AppColors.onSurface,
+      color: context.colors.onSurface,
     );
     return Container(
-      color: AppColors.surfaceContainerHighest,
+      color: context.colors.surfaceContainerHighest,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
@@ -624,16 +624,16 @@ class _ServiceDataRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cell = AppTypography.bodyMd.copyWith(
+    final cell = context.typography.bodyMd.copyWith(
       fontSize: 13,
-      color: AppColors.onSurface,
+      color: context.colors.onSurface,
     );
-    final muted = cell.copyWith(color: AppColors.secondary);
+    final muted = cell.copyWith(color: context.colors.secondary);
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLow,
+      decoration: BoxDecoration(
+        color: context.colors.surfaceContainerLow,
         border: Border(
-          top: BorderSide(color: AppColors.outlineVariant, width: 1),
+          top: BorderSide(color: context.colors.outlineVariant, width: 1),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -671,13 +671,13 @@ class _TotalRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labelStyle = emphasized
-        ? AppTypography.titleSm.copyWith(fontSize: 15)
-        : AppTypography.bodyMd.copyWith(
-            fontSize: 14, color: AppColors.secondary);
+        ? context.typography.titleSm.copyWith(fontSize: 15)
+        : context.typography.bodyMd.copyWith(
+            fontSize: 14, color: context.colors.secondary);
     final valueStyle = emphasized
-        ? AppTypography.titleSm.copyWith(
-            fontSize: 17, color: AppColors.primaryContainer)
-        : AppTypography.bodyMd.copyWith(
+        ? context.typography.titleSm.copyWith(
+            fontSize: 17, color: context.colors.primaryContainer)
+        : context.typography.bodyMd.copyWith(
             fontSize: 14, fontWeight: FontWeight.w600);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -707,10 +707,10 @@ class _ActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: context.colors.surface,
         border: Border(
-          top: BorderSide(color: AppColors.surfaceContainerHigh, width: 1),
+          top: BorderSide(color: context.colors.surfaceContainerHigh, width: 1),
         ),
       ),
       child: SafeArea(
