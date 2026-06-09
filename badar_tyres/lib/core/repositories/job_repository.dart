@@ -1,6 +1,7 @@
 import '../api/api_client.dart';
 import '../models/job.dart';
 import '../models/job_metrics.dart';
+import '../models/vehicle.dart';
 
 /// Data access for jobs, metrics, and technicians. Talks to the mock REST API
 /// via [ApiClient]; swap the client for a real backend without touching the UI.
@@ -21,6 +22,13 @@ class JobRepository {
     });
     return (data as List<dynamic>)
         .map((e) => Job.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<Vehicle>> fetchVehicles() async {
+    final data = await _client.getJson('/vehicles');
+    return (data as List<dynamic>)
+        .map((e) => Vehicle.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 

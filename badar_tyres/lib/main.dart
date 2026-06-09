@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'core/auth/session_store.dart';
 import 'core/theme/theme.dart';
+import 'core/theme/theme_store.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/home/presentation/home_shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ThemeStore.instance.init();
   final rememberedUser = await SessionStore.instance.currentUser();
   runApp(MyApp(startLoggedIn: rememberedUser != null));
 }
@@ -19,13 +21,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Badar Tyres',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
-      home: startLoggedIn ? const HomeShell() : const LoginScreen(),
+    return ListenableBuilder(
+      listenable: ThemeStore.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Badar Tyres',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeStore.instance.themeMode,
+          home: startLoggedIn ? const HomeShell() : const LoginScreen(),
+        );
+      },
     );
   }
 }

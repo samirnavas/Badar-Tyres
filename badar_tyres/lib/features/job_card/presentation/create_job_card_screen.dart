@@ -42,18 +42,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
   TimeOfDay? _startingTime;
   String? _technician;
 
-  final List<ServiceItem> _services = [
-    const ServiceItem(
-      name: 'Oil Change',
-      description: 'Engine oil & filter Change',
-      amount: 1200,
-    ),
-    const ServiceItem(
-      name: 'Brake Service',
-      description: 'Front & rear brake check & service',
-      amount: 1800,
-    ),
-  ];
+  final List<ServiceItem> _services = [];
 
   double get _subTotal =>
       _services.fold(0, (sum, item) => sum + item.amount);

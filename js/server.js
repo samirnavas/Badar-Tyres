@@ -160,6 +160,27 @@ app.post('/api/jobs', (req, res) => {
   res.status(201).json(job);
 });
 
+// --- Vehicles --------------------------------------------------------------
+app.get('/api/vehicles', (_req, res) => {
+  const vehicleMap = new Map();
+  for (const j of jobs) {
+    if (!j.vehicleNumber) continue;
+    // Since jobs are added newest first, the first time we see a vehicleNumber
+    // it contains the most recent details.
+    if (!vehicleMap.has(j.vehicleNumber)) {
+      vehicleMap.set(j.vehicleNumber, {
+        vehicleNumber: j.vehicleNumber,
+        vehicleModel: j.vehicleModel,
+        vehicleType: j.vehicleType || 'Car',
+        customerName: j.customerName,
+        mobile: j.mobile,
+        lastJobDate: j.date,
+      });
+    }
+  }
+  res.json(Array.from(vehicleMap.values()));
+});
+
 // --- Health check ----------------------------------------------------------
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 

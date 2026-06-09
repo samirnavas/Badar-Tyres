@@ -4,6 +4,7 @@ import '../../../core/auth/session_store.dart';
 import '../../../core/theme/theme.dart';
 import '../../auth/presentation/login_screen.dart';
 import '../../services/presentation/services_catalog_screen.dart';
+import '../../settings/presentation/settings_screen.dart';
 
 /// The "More" tab — a settings-style menu of secondary destinations and the
 /// sign-out action.
@@ -71,7 +72,11 @@ class MoreScreen extends StatelessWidget {
           _MoreTile(
             icon: Icons.settings_outlined,
             label: 'Settings',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
           _MoreTile(
             icon: Icons.help_outline,
