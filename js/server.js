@@ -96,6 +96,15 @@ app.get('/api/jobs/:id', (req, res) => {
   res.json(job);
 });
 
+// --- Delete a job ----------------------------------------------------------
+app.delete('/api/jobs/:id', (req, res) => {
+  const index = jobs.findIndex((j) => j.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'Job not found' });
+  const deletedJob = jobs.splice(index, 1)[0];
+  persistJobs();
+  res.json(deletedJob);
+});
+
 // --- Technicians (derived from users with the "technician" role) -----------
 app.get('/api/technicians', (_req, res) => {
   const names = users
@@ -208,6 +217,7 @@ app.listen(PORT, () => {
   console.log('  GET  /api/metrics');
   console.log('  GET  /api/jobs?status=&search=');
   console.log('  GET  /api/jobs/:id');
+  console.log('  DELETE /api/jobs/:id');
   console.log('  GET  /api/technicians');
   console.log('  GET  /api/manufacturers');
   console.log('  GET  /api/services');

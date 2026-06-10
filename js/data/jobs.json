@@ -184,34 +184,6 @@
     "grandTotal": 2950
   },
   {
-    "id": "JC-240515-005",
-    "jobNumber": "JC-240515-005",
-    "customerName": "Sara Thomas",
-    "mobile": "9900112233",
-    "vehicleModel": "Maruti Swift",
-    "vehicleNumber": "KL05XY9090",
-    "vehicleType": "Car",
-    "status": "delayed",
-    "time": "01:00 PM",
-    "date": "15 MAY 2024",
-    "technician": "Rahul Nair",
-    "startTime": "11:00 AM",
-    "expectedEnd": "12:30 PM",
-    "actualEnd": null,
-    "delay": "20 Min",
-    "remarks": "",
-    "services": [
-      {
-        "name": "General Service",
-        "description": "Full periodic maintenance",
-        "amount": 4200
-      }
-    ],
-    "subTotal": 4200,
-    "gst": 756,
-    "grandTotal": 4956
-  },
-  {
     "id": "JC-240515-006",
     "jobNumber": "JC-240515-006",
     "customerName": "Mohammed Ali",

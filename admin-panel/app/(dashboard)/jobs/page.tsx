@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
-import { useJobs } from "@/lib/hooks";
-import type { JobStatus } from "@/lib/types";
+import { Plus, MoreVertical, ChevronLeft, ChevronRight, Edit, Trash } from "lucide-react";
+import { useJobs, useDeleteJob } from "@/lib/hooks";
+import type { JobStatus, Job } from "@/lib/types";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn, formatCurrency } from "@/lib/format";
 
@@ -35,6 +36,101 @@ const urgency: Record<JobStatus, { label: string; className: string }> = {
     className: "bg-indigo-50 text-indigo-700 border-indigo-200",
   },
 };
+
+function JobRow({ job }: { job: Job }) {
+  const router = useRouter();
+  const deleteJob = useDeleteJob();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const u = urgency[job.status];
+
+  const handleRowClick = () => {
+    router.push(`/jobs/${job.id}`);
+  };
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuOpen((prev) => !prev);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    router.push(`/jobs/${job.id}/edit`);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuOpen(false);
+    if (confirm("Are you sure you want to delete this job card?")) {
+      deleteJob.mutate(job.id);
+    }
+  };
+
+  return (
+    <tr
+      onClick={handleRowClick}
+      className="cursor-pointer transition-colors hover:bg-gray-50"
+    >
+      <td className="px-5 py-4 font-semibold text-theme-accent">
+        <span className="hover:underline">
+          {job.jobNumber}
+        </span>
+      </td>
+      <td className="px-5 py-4 text-gray-600">
+        {job.date}, {job.time}
+      </td>
+      <td className="px-5 py-4 font-medium text-gray-900">
+        {job.vehicleNumber || "—"}
+      </td>
+      <td className="px-5 py-4 text-gray-900">
+        {job.customerName}
+      </td>
+      <td className="px-5 py-4 text-gray-600">
+        {job.technician}
+      </td>
+      <td className="px-5 py-4">
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+            u.className,
+          )}
+        >
+          {u.label}
+        </span>
+      </td>
+      <td className="px-5 py-4 text-right font-semibold text-gray-900">
+        ₹ {formatCurrency(job.grandTotal)}
+      </td>
+      <td className="px-5 py-4 text-right relative">
+        <button
+          onClick={handleMenuClick}
+          className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+        {menuOpen && (
+          <div
+            className="absolute right-8 top-4 z-10 w-36 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 border border-gray-200"
+            onMouseLeave={() => setMenuOpen(false)}
+          >
+            <button
+              onClick={handleEdit}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              <Edit className="h-4 w-4" /> Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+            >
+              <Trash className="h-4 w-4" /> Delete
+            </button>
+          </div>
+        )}
+      </td>
+    </tr>
+  );
+}
 
 export default function JobsPage() {
   const [tab, setTab] = useState<TabValue>("all");
@@ -116,51 +212,9 @@ export default function JobsPage() {
                 ))}
 
               {!isLoading &&
-                rows.map((job) => {
-                  const u = urgency[job.status];
-                  return (
-                    <tr
-                      key={job.id}
-                      className="transition-colors hover:bg-gray-50"
-                    >
-                      <td className="px-5 py-4 font-semibold text-theme-accent">
-                        <Link href={`/jobs/${job.id}`} className="hover:underline">
-                          {job.jobNumber}
-                        </Link>
-                      </td>
-                      <td className="px-5 py-4 text-gray-600">
-                        {job.date}, {job.time}
-                      </td>
-                      <td className="px-5 py-4 font-medium text-gray-900">
-                        {job.vehicleNumber || "—"}
-                      </td>
-                      <td className="px-5 py-4 text-gray-900">
-                        {job.customerName}
-                      </td>
-                      <td className="px-5 py-4 text-gray-600">
-                        {job.technician}
-                      </td>
-                      <td className="px-5 py-4">
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
-                            u.className,
-                          )}
-                        >
-                          {u.label}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4 text-right font-semibold text-gray-900">
-                        ₹ {formatCurrency(job.grandTotal)}
-                      </td>
-                      <td className="px-5 py-4 text-right">
-                        <button className="rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
+                rows.map((job) => (
+                  <JobRow key={job.id} job={job} />
+                ))}
 
               {!isLoading && isError && (
                 <tr>

@@ -58,4 +58,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  deleteJob: (id: string) =>
+    request<Job>(`/jobs/${id}`, {
+      method: "DELETE",
+    }),
 };
