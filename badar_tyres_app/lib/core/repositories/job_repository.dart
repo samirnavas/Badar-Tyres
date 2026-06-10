@@ -42,6 +42,11 @@ class JobRepository {
     return (data as List<dynamic>).map((e) => e.toString()).toList();
   }
 
+  Future<List<String>> fetchManufacturers() async {
+    final data = await _client.getJson('/manufacturers');
+    return (data as List<dynamic>).map((e) => e.toString()).toList();
+  }
+
   Future<Job> createJob(Map<String, dynamic> payload) async {
     final data = await _client.postJson('/jobs', payload);
     return Job.fromJson(data as Map<String, dynamic>);

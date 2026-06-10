@@ -9,7 +9,7 @@ app.use(express.json());
 
 const DATA_DIR = path.join(__dirname, 'data');
 const JOBS_FILE = path.join(DATA_DIR, 'jobs.json');
-const TECHNICIANS_FILE = path.join(DATA_DIR, 'technicians.json');
+const MANUFACTURERS_FILE = path.join(DATA_DIR, 'manufacturers.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const GST_RATE = 0.18;
 
@@ -18,7 +18,7 @@ const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 // In-memory "database", seeded from the JSON files. Writes are persisted back
 // to jobs.json so created records survive restarts (like a real DB).
 let jobs = readJson(JOBS_FILE);
-const technicians = readJson(TECHNICIANS_FILE);
+const manufacturers = readJson(MANUFACTURERS_FILE);
 const users = readJson(USERS_FILE);
 
 const persistJobs = () => {
@@ -94,9 +94,17 @@ app.get('/api/jobs/:id', (req, res) => {
   res.json(job);
 });
 
-// --- Technicians -----------------------------------------------------------
+// --- Technicians (derived from users with the "technician" role) -----------
 app.get('/api/technicians', (_req, res) => {
-  res.json(technicians);
+  const names = users
+    .filter((u) => u.role === 'technician')
+    .map((u) => u.name);
+  res.json(names);
+});
+
+// --- Vehicle manufacturers -------------------------------------------------
+app.get('/api/manufacturers', (_req, res) => {
+  res.json(manufacturers);
 });
 
 // --- Create a job ----------------------------------------------------------
@@ -194,5 +202,6 @@ app.listen(PORT, () => {
   console.log('  GET  /api/jobs?status=&search=');
   console.log('  GET  /api/jobs/:id');
   console.log('  GET  /api/technicians');
+  console.log('  GET  /api/manufacturers');
   console.log('  POST /api/jobs');
 });

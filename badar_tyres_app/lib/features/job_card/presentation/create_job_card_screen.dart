@@ -24,6 +24,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
 
   final JobRepository _repository = JobRepository();
   List<String> _technicians = const [];
+  List<String> _manufacturers = const [];
   bool _isSubmitting = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -37,6 +38,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
   final _startingTimeController = TextEditingController();
 
   String _vehicleType = 'Car';
+  String? _manufacturer;
   String? _wheelType;
   String? _tyreType;
   TimeOfDay? _startingTime;
@@ -53,6 +55,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
   void initState() {
     super.initState();
     _loadTechnicians();
+    _loadManufacturers();
   }
 
   Future<void> _loadTechnicians() async {
@@ -60,6 +63,16 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
       final technicians = await _repository.fetchTechnicians();
       if (!mounted) return;
       setState(() => _technicians = technicians);
+    } on ApiException {
+      // Leave the dropdown empty if the server is unreachable.
+    }
+  }
+
+  Future<void> _loadManufacturers() async {
+    try {
+      final manufacturers = await _repository.fetchManufacturers();
+      if (!mounted) return;
+      setState(() => _manufacturers = manufacturers);
     } on ApiException {
       // Leave the dropdown empty if the server is unreachable.
     }
@@ -109,11 +122,17 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
     FocusScope.of(context).unfocus();
     setState(() => _isSubmitting = true);
 
+    final model = [
+      _manufacturer?.trim() ?? '',
+      _modelController.text.trim(),
+    ].where((s) => s.isNotEmpty).join(' ');
+
     final payload = <String, dynamic>{
       'customerName': _customerNameController.text.trim(),
       'contact': _contactController.text.trim(),
       'vehicleReg': _vehicleRegController.text.trim(),
-      'model': _modelController.text.trim(),
+      'manufacturer': _manufacturer,
+      'model': model,
       'vehicleType': _vehicleType,
       'wheelType': _wheelType,
       'tyreType': _tyreType,
@@ -198,9 +217,17 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
                   validator: _required,
                 ),
                 const SizedBox(height: AppSpacing.stackMd),
+                _LabeledDropdown(
+                  label: 'Manufacturer',
+                  hint: 'Select Manufacturer',
+                  value: _manufacturer,
+                  options: _manufacturers,
+                  onChanged: (v) => setState(() => _manufacturer = v),
+                ),
+                const SizedBox(height: AppSpacing.stackMd),
                 CustomTextField(
                   label: 'Model',
-                  hint: 'Enter Model',
+                  hint: 'e.g. Corolla, Civic, Actros',
                   controller: _modelController,
                   textInputAction: TextInputAction.next,
                 ),
@@ -265,7 +292,9 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
                   keyboardType: TextInputType.multiline,
                 ),
                 const SizedBox(height: AppSpacing.stackMd),
-                _TechnicianDropdown(
+                _LabeledDropdown(
+                  label: 'Assign Technician',
+                  hint: 'Technician',
                   value: _technician,
                   options: _technicians,
                   onChanged: (v) => setState(() => _technician = v),
@@ -467,27 +496,33 @@ class _RadioOption extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Technician dropdown (styled to match CustomTextField)
+// Labeled dropdown (styled to match CustomTextField)
 // ---------------------------------------------------------------------------
 
-class _TechnicianDropdown extends StatelessWidget {
-  const _TechnicianDropdown({
+class _LabeledDropdown extends StatelessWidget {
+  const _LabeledDropdown({
+    required this.label,
+    required this.hint,
     required this.value,
     required this.options,
     required this.onChanged,
   });
 
+  final String label;
+  final String hint;
   final String? value;
   final List<String> options;
   final ValueChanged<String?> onChanged;
 
   @override
   Widget build(BuildContext context) {
+    // Guard against a stale selection that is no longer in the options list.
+    final selected = (value != null && options.contains(value)) ? value : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Assign Technician',
+          label,
           style: context.typography.bodyMd.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -496,7 +531,7 @@ class _TechnicianDropdown extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.base),
         DropdownButtonFormField<String>(
-          initialValue: value,
+          initialValue: selected,
           isExpanded: true,
           dropdownColor: context.colors.surfaceContainerHigh,
           borderRadius: AppRadius.brBase,
@@ -504,7 +539,7 @@ class _TechnicianDropdown extends StatelessWidget {
           iconEnabledColor: context.colors.onSurfaceVariant,
           style: context.typography.bodyMd.copyWith(color: context.colors.onSurface),
           hint: Text(
-            'Technician',
+            hint,
             style:
                 context.typography.bodyMd.copyWith(color: context.colors.onSurfaceVariant.withValues(alpha: 0.5)),
           ),
