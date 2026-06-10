@@ -124,7 +124,9 @@ export default function JobsPage() {
                       className="transition-colors hover:bg-gray-50"
                     >
                       <td className="px-5 py-4 font-semibold text-theme-accent">
-                        {job.jobNumber}
+                        <Link href={`/jobs/${job.id}`} className="hover:underline">
+                          {job.jobNumber}
+                        </Link>
                       </td>
                       <td className="px-5 py-4 text-gray-600">
                         {job.date}, {job.time}

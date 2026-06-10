@@ -58,6 +58,8 @@ export interface CreateJobPayload {
   vehicleModel: string;
   vehicleNumber: string;
   vehicleType?: string;
+  wheelType?: string;
+  tyreType?: string;
   technician: string;
   services: ServiceItem[];
 }

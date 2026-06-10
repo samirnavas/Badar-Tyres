@@ -12,6 +12,9 @@ export const createJobSchema = z.object({
     .string()
     .min(7, "Enter a valid mobile number")
     .regex(/^[0-9+\-\s]+$/, "Digits only"),
+  vehicleType: z.string().min(1, "Select a vehicle type"),
+  wheelType: z.string().optional(),
+  tyreType: z.string().optional(),
   manufacturer: z.string().min(1, "Select a manufacturer"),
   model: z.string().min(1, "Vehicle model is required"),
   vehicleNumber: z.string().min(1, "License ID is required"),

@@ -1,13 +1,5 @@
-[
-  "Toyota",
-  "Honda",
-  "Maruti Suzuki",
-  "Hyundai",
-  "Mahindra",
-  "Tata Motors",
-  "Mercedes-Benz",
-  "Volvo",
-  "Scania",
-  "Ashok Leyland",
-  "Royal Enfield"
-]
+{
+  "Car": ["Toyota", "Honda", "Maruti Suzuki", "Hyundai", "Mercedes-Benz"],
+  "Bike": ["Royal Enfield"],
+  "Others": ["Mahindra", "Tata Motors", "Volvo", "Scania", "Ashok Leyland"]
+}

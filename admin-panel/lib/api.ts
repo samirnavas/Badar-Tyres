@@ -47,7 +47,7 @@ export const api = {
 
   getTechnicians: () => request<Technician[]>("/technicians"),
 
-  getManufacturers: () => request<string[]>("/manufacturers"),
+  getManufacturers: () => request<Record<string, string[]>>("/manufacturers"),
 
   getServices: () => request<string[]>("/services"),
 

@@ -24,7 +24,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
 
   final JobRepository _repository = JobRepository();
   List<String> _technicians = const [];
-  List<String> _manufacturers = const [];
+  Map<String, List<String>> _manufacturersMap = const {};
   bool _isSubmitting = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -72,7 +72,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
     try {
       final manufacturers = await _repository.fetchManufacturers();
       if (!mounted) return;
-      setState(() => _manufacturers = manufacturers);
+      setState(() => _manufacturersMap = manufacturers);
     } on ApiException {
       // Leave the dropdown empty if the server is unreachable.
     }
@@ -208,6 +208,18 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
             _FormSection(
               title: 'Vehicle Details',
               children: [
+                _RadioGroup(
+                  label: 'Vehicle Type',
+                  options: const ['Car', 'Bike', 'Others'],
+                  value: _vehicleType,
+                  onChanged: (v) {
+                    setState(() {
+                      _vehicleType = v;
+                      _manufacturer = null; // Reset when type changes
+                    });
+                  },
+                ),
+                const SizedBox(height: AppSpacing.stackMd),
                 CustomTextField(
                   label: 'Vehicle Reg.No.',
                   hint: 'Enter Vehicle Reg.No.',
@@ -221,7 +233,7 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
                   label: 'Manufacturer',
                   hint: 'Select Manufacturer',
                   value: _manufacturer,
-                  options: _manufacturers,
+                  options: _manufacturersMap[_vehicleType] ?? [],
                   onChanged: (v) => setState(() => _manufacturer = v),
                 ),
                 const SizedBox(height: AppSpacing.stackMd),
@@ -230,13 +242,6 @@ class _CreateJobCardScreenState extends State<CreateJobCardScreen> {
                   hint: 'e.g. Corolla, Civic, Actros',
                   controller: _modelController,
                   textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: AppSpacing.stackMd),
-                _RadioGroup(
-                  label: 'Vehicle Type',
-                  options: const ['Car', 'Bike', 'Others'],
-                  value: _vehicleType,
-                  onChanged: (v) => setState(() => _vehicleType = v),
                 ),
                 const SizedBox(height: AppSpacing.stackMd),
                 Row(

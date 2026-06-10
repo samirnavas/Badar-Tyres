@@ -35,6 +35,14 @@ export function useJobs(filters?: {
   });
 }
 
+export function useJob(id: string) {
+  return useQuery({
+    queryKey: ["job", id],
+    queryFn: () => api.getJob(id),
+    enabled: !!id,
+  });
+}
+
 export function useTechnicians() {
   return useQuery({
     queryKey: queryKeys.technicians,

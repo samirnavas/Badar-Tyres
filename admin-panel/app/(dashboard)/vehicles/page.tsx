@@ -170,7 +170,7 @@ function VehicleCard({ vehicle, jobs }: { vehicle: Vehicle; jobs: Job[] }) {
           </p>
         </div>
         <Link
-          href={`/jobs?search=${encodeURIComponent(vehicle.vehicleNumber)}`}
+          href={vehicle.lastJobId ? `/jobs/${vehicle.lastJobId}` : `/jobs?search=${encodeURIComponent(vehicle.vehicleNumber)}`}
           className="mt-4 inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-700 transition-colors hover:bg-gray-50"
         >
           <Eye className="h-3.5 w-3.5" /> View Full Profile

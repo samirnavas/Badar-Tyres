@@ -11,6 +11,7 @@ import {
   Trash2,
   CheckCircle2,
   ChevronDown,
+  CarFront,
 } from "lucide-react";
 import {
   useTechnicians,
@@ -38,6 +39,9 @@ export default function CreateJobPage() {
     defaultValues: {
       customerName: "",
       mobile: "",
+      vehicleType: "Car",
+      wheelType: "",
+      tyreType: "",
       manufacturer: "",
       model: "",
       vehicleNumber: "",
@@ -66,6 +70,9 @@ export default function CreateJobPage() {
       {
         customerName: values.customerName,
         mobile: values.mobile,
+        vehicleType: values.vehicleType,
+        wheelType: values.wheelType,
+        tyreType: values.tyreType,
         vehicleModel: `${values.manufacturer} ${values.model}`.trim(),
         vehicleNumber: values.vehicleNumber,
         technician: values.technician,
@@ -128,6 +135,39 @@ export default function CreateJobPage() {
                 />
               </Field>
 
+            </div>
+          </section>
+
+          {/* Vehicle Information */}
+          <section className="rounded-md border border-gray-200 bg-white">
+            <div className="flex items-center gap-2 border-b border-gray-200 px-5 py-4">
+              <CarFront className="h-4 w-4 text-theme-accent" />
+              <h2 className="text-base font-semibold text-gray-900">
+                Vehicle Details
+              </h2>
+            </div>
+            <div className="space-y-4 p-5">
+              <Field label="Vehicle Type" error={errors.vehicleType?.message}>
+                <div className="flex gap-4">
+                  {["Car", "Bike", "Others"].map((type) => (
+                    <label key={type} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value={type}
+                        {...register("vehicleType")}
+                        className="h-4 w-4 text-theme-accent focus:ring-theme-accent border-gray-300"
+                        onChange={(e) => {
+                          register("vehicleType").onChange(e);
+                          // Reset manufacturer when vehicle type changes
+                          control._formValues.manufacturer = "";
+                        }}
+                      />
+                      <span className="text-sm font-medium text-gray-900">{type}</span>
+                    </label>
+                  ))}
+                </div>
+              </Field>
+
               <Field
                 label="Vehicle Manufacturer"
                 error={errors.manufacturer?.message}
@@ -144,11 +184,15 @@ export default function CreateJobPage() {
                         ? "Loading manufacturers..."
                         : "Select Manufacturer..."}
                     </option>
-                    {(manufacturers.data ?? []).map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
+                    {(() => {
+                      const type = useWatch({ control, name: "vehicleType" }) || "Car";
+                      const options = manufacturers.data?.[type] || [];
+                      return options.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ));
+                    })()}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
@@ -172,6 +216,39 @@ export default function CreateJobPage() {
                   className={inputClass(!!errors.vehicleNumber)}
                 />
               </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Wheel Type" error={errors.wheelType?.message}>
+                  <div className="flex gap-4">
+                    {["Alloy", "Steel"].map((type) => (
+                      <label key={type} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          value={type}
+                          {...register("wheelType")}
+                          className="h-4 w-4 text-theme-accent focus:ring-theme-accent border-gray-300"
+                        />
+                        <span className="text-sm font-medium text-gray-900">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </Field>
+                <Field label="Tyre Type" error={errors.tyreType?.message}>
+                  <div className="flex gap-4">
+                    {["TL", "TT"].map((type) => (
+                      <label key={type} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          value={type}
+                          {...register("tyreType")}
+                          className="h-4 w-4 text-theme-accent focus:ring-theme-accent border-gray-300"
+                        />
+                        <span className="text-sm font-medium text-gray-900">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </Field>
+              </div>
             </div>
           </section>
 

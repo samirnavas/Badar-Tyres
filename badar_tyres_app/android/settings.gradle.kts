@@ -24,3 +24,5 @@ plugins {
 }
 
 include(":app")
+
+rootProject.name = "badar_tyres_app_android"
