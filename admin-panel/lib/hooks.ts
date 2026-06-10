@@ -14,6 +14,7 @@ export const queryKeys = {
     ["jobs", filters ?? {}] as const,
   technicians: ["technicians"] as const,
   manufacturers: ["manufacturers"] as const,
+  services: ["services"] as const,
   vehicles: ["vehicles"] as const,
 };
 
@@ -45,6 +46,13 @@ export function useManufacturers() {
   return useQuery({
     queryKey: queryKeys.manufacturers,
     queryFn: api.getManufacturers,
+  });
+}
+
+export function useServices() {
+  return useQuery({
+    queryKey: queryKeys.services,
+    queryFn: api.getServices,
   });
 }
 

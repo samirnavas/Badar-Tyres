@@ -12,7 +12,12 @@ import {
   CheckCircle2,
   ChevronDown,
 } from "lucide-react";
-import { useTechnicians, useManufacturers, useCreateJob } from "@/lib/hooks";
+import {
+  useTechnicians,
+  useManufacturers,
+  useServices,
+  useCreateJob,
+} from "@/lib/hooks";
 import { cn, formatCurrency } from "@/lib/format";
 import { createJobSchema, type CreateJobForm, GST_RATE } from "./schema";
 
@@ -20,6 +25,7 @@ export default function CreateJobPage() {
   const router = useRouter();
   const technicians = useTechnicians();
   const manufacturers = useManufacturers();
+  const services = useServices();
   const createJob = useCreateJob();
 
   const {
@@ -247,12 +253,28 @@ export default function CreateJobPage() {
                       key={field.id}
                       className="grid grid-cols-[1fr_64px_96px_104px_32px] items-center gap-2 py-3"
                     >
-                      <div>
-                        <input
+                      <div className="relative">
+                        <select
                           {...register(`services.${index}.name` as const)}
-                          placeholder="Service or part name"
-                          className={inputClass(!!rowError?.name)}
-                        />
+                          defaultValue={field.name || ""}
+                          disabled={services.isLoading}
+                          className={cn(
+                            inputClass(!!rowError?.name),
+                            "appearance-none pr-8",
+                          )}
+                        >
+                          <option value="" disabled>
+                            {services.isLoading
+                              ? "Loading services..."
+                              : "Select service / part..."}
+                          </option>
+                          {(services.data ?? []).map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                       </div>
                       <input
                         type="number"

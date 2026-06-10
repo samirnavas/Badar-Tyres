@@ -10,6 +10,7 @@ app.use(express.json());
 const DATA_DIR = path.join(__dirname, 'data');
 const JOBS_FILE = path.join(DATA_DIR, 'jobs.json');
 const MANUFACTURERS_FILE = path.join(DATA_DIR, 'manufacturers.json');
+const SERVICES_FILE = path.join(DATA_DIR, 'services.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const GST_RATE = 0.18;
 
@@ -19,6 +20,7 @@ const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 // to jobs.json so created records survive restarts (like a real DB).
 let jobs = readJson(JOBS_FILE);
 const manufacturers = readJson(MANUFACTURERS_FILE);
+const serviceCatalog = readJson(SERVICES_FILE);
 const users = readJson(USERS_FILE);
 
 const persistJobs = () => {
@@ -105,6 +107,11 @@ app.get('/api/technicians', (_req, res) => {
 // --- Vehicle manufacturers -------------------------------------------------
 app.get('/api/manufacturers', (_req, res) => {
   res.json(manufacturers);
+});
+
+// --- Service catalog -------------------------------------------------------
+app.get('/api/services', (_req, res) => {
+  res.json(serviceCatalog);
 });
 
 // --- Create a job ----------------------------------------------------------
@@ -203,5 +210,6 @@ app.listen(PORT, () => {
   console.log('  GET  /api/jobs/:id');
   console.log('  GET  /api/technicians');
   console.log('  GET  /api/manufacturers');
+  console.log('  GET  /api/services');
   console.log('  POST /api/jobs');
 });

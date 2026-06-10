@@ -49,6 +49,8 @@ export const api = {
 
   getManufacturers: () => request<string[]>("/manufacturers"),
 
+  getServices: () => request<string[]>("/services"),
+
   getVehicles: () => request<Vehicle[]>("/vehicles"),
 
   createJob: (payload: CreateJobPayload) =>
