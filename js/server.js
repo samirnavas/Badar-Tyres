@@ -21,8 +21,13 @@ const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 let jobs = readJson(JOBS_FILE);
 const manufacturers = readJson(MANUFACTURERS_FILE);
 const serviceCatalog = readJson(SERVICES_FILE);
-const users = readJson(USERS_FILE);
+let users = readJson(USERS_FILE);
 
+const persistUsers = () => {
+  fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2), (err) => {
+    if (err) console.error('Failed to persist users:', err.message);
+  });
+};
 const persistJobs = () => {
   fs.writeFile(JOBS_FILE, JSON.stringify(jobs, null, 2), (err) => {
     if (err) console.error('Failed to persist jobs:', err.message);
@@ -55,6 +60,38 @@ app.post('/api/login', (req, res) => {
       role: user.role,
     },
   });
+});
+
+// --- Users -----------------------------------------------------------------
+app.get('/api/users', (_req, res) => {
+  // Omit passwords for security
+  const safeUsers = users.map(({ password, ...u }) => u);
+  res.json(safeUsers);
+});
+
+app.patch('/api/users/:id', (req, res) => {
+  const { role } = req.body || {};
+  if (!role) return res.status(400).json({ error: 'role is required' });
+
+  const user = users.find((u) => u.id === req.params.id);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  user.role = role;
+  persistUsers();
+  
+  const { password, ...safeUser } = user;
+  res.json(safeUser);
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  const index = users.findIndex((u) => u.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'User not found' });
+  
+  const deletedUser = users.splice(index, 1)[0];
+  persistUsers();
+  
+  const { password, ...safeUser } = deletedUser;
+  res.json(safeUser);
 });
 
 // --- Dashboard metrics -----------------------------------------------------
@@ -222,4 +259,7 @@ app.listen(PORT, () => {
   console.log('  GET  /api/manufacturers');
   console.log('  GET  /api/services');
   console.log('  POST /api/jobs');
+  console.log('  GET  /api/users');
+  console.log('  PATCH /api/users/:id');
+  console.log('  DELETE /api/users/:id');
 });

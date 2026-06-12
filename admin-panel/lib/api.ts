@@ -5,6 +5,7 @@ import type {
   Metrics,
   Technician,
   Vehicle,
+  User,
 } from "./types";
 
 const API_BASE_URL =
@@ -31,6 +32,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  login: (payload: { username: string; password: string }) =>
+    request<{ token: string; user: User }>("/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
   getMetrics: () => request<Metrics>("/metrics"),
 
   getJobs: (params?: { status?: JobStatus | "all"; search?: string }) => {
@@ -61,6 +68,19 @@ export const api = {
 
   deleteJob: (id: string) =>
     request<Job>(`/jobs/${id}`, {
+      method: "DELETE",
+    }),
+
+  getUsers: () => request<User[]>("/users"),
+
+  updateUserRole: (id: string, role: string) =>
+    request<User>(`/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
+
+  deleteUser: (id: string) =>
+    request<User>(`/users/${id}`, {
       method: "DELETE",
     }),
 };

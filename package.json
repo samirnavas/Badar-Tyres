@@ -1,0 +1,9 @@
+{
+  "name": "badar-tyres",
+  "version": "1.0.0",
+  "description": "Root workspace for Badar Tyres",
+  "scripts": {
+    "dev:js": "npm run dev --prefix js",
+    "dev:admin": "npm run dev --prefix admin-panel"
+  }
+}

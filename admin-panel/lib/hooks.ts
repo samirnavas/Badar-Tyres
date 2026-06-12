@@ -16,6 +16,7 @@ export const queryKeys = {
   manufacturers: ["manufacturers"] as const,
   services: ["services"] as const,
   vehicles: ["vehicles"] as const,
+  users: ["users"] as const,
 };
 
 export function useMetrics() {
@@ -90,6 +91,34 @@ export function useDeleteJob() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.metrics });
+    },
+  });
+}
+
+export function useUsers() {
+  return useQuery({
+    queryKey: queryKeys.users,
+    queryFn: api.getUsers,
+  });
+}
+
+export function useUpdateUserRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) =>
+      api.updateUserRole(id, role),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users });
+    },
+  });
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users });
     },
   });
 }

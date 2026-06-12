@@ -8,18 +8,32 @@ import {
   PlusSquare,
   Truck,
   LogOut,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/format";
+
+import { useAuth } from "@/lib/AuthContext";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutGrid },
   { label: "Job Cards", href: "/jobs", icon: FileText },
   { label: "Create New Job Card", href: "/jobs/create", icon: PlusSquare },
   { label: "Vehicle Fleet Logs", href: "/vehicles", icon: Truck },
+  { label: "Users Management", href: "/users", icon: Users },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+  
+  // Calculate initials safely
+  const name = user?.name || "Workshop Manager";
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-gray-200 bg-white">
@@ -74,13 +88,16 @@ export function Sidebar() {
       <div className="border-t border-gray-200 px-4 py-4">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-600">
-            WM
+            {initials}
           </span>
           <div className="min-w-0 flex-1 leading-tight">
             <p className="truncate text-sm font-semibold text-gray-900">
-              Workshop Manager
+              {name}
             </p>
-            <button className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500 transition-colors hover:text-theme-accent">
+            <button 
+              onClick={() => logout()}
+              className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-gray-500 transition-colors hover:text-theme-accent"
+            >
               <LogOut className="h-3 w-3" /> Sign out
             </button>
           </div>

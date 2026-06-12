@@ -63,3 +63,10 @@ export interface CreateJobPayload {
   technician: string;
   services: ServiceItem[];
 }
+
+export interface User {
+  id: string;
+  name: string;
+  username: string;
+  role: string;
+}
