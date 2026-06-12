@@ -65,15 +65,15 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       await SessionStore.instance.save(user, rememberMe: _rememberMe);
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeShell()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeShell()));
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     flex: 5,
                     child: Center(
                       child: SvgPicture.asset(
-                        'assets/images/full_logo.svg',
+                        'assets/images/badar_logo_white.svg',
                         width: size.width * 0.55,
                         semanticsLabel: 'Badar Tyres',
                       ),
