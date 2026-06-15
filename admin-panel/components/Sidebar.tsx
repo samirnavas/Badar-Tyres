@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid,
   FileText,
-  PlusSquare,
   Truck,
   Users,
+  Settings,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/format";
@@ -15,9 +15,9 @@ import { cn } from "@/lib/format";
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutGrid },
   { label: "Job Cards", href: "/jobs", icon: FileText },
-  { label: "Create New Job Card", href: "/jobs/create", icon: PlusSquare },
   { label: "Vehicle Fleet Logs", href: "/vehicles", icon: Truck },
   { label: "Users Management", href: "/users", icon: Users },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar({
@@ -61,13 +61,9 @@ export function Sidebar({
 
       <nav className="flex-1 space-y-1 px-3 py-5">
         {navItems.map(({ label, href, icon: Icon }) => {
-          const active =
+          const isActive =
             pathname === href ||
-            (href !== "/dashboard" &&
-              href !== "/jobs/create" &&
-              pathname.startsWith(href));
-          const isCreate = href === "/jobs/create";
-          const isActive = isCreate ? pathname === href : active;
+            (href !== "/dashboard" && pathname.startsWith(href));
 
           return (
             <Link

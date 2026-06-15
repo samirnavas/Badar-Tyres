@@ -1,28 +1,63 @@
 import { z } from "zod";
 
-export const serviceItemSchema = z.object({
-  name: z.string().min(1, "Service required"),
+export const serviceLineSchema = z.object({
+  service_id: z.string().min(1, "Select a service"),
+  name: z.string().min(1, "Select a service"),
   qty: z.number({ message: "Min 1" }).min(1, "Min 1"),
   rate: z.number({ message: "Invalid" }).min(0, "Invalid"),
-  isTaxable: z.boolean(),
+  gst_rate: z.number().min(0),
 });
 
-export const createJobSchema = z.object({
-  customerName: z.string().min(1, "Customer name is required"),
-  mobile: z
-    .string()
-    .min(7, "Enter a valid mobile number")
-    .regex(/^[0-9+\-\s]+$/, "Digits only"),
-  vehicleType: z.string().min(1, "Select a vehicle type"),
-  wheelType: z.string().optional(),
-  tyreType: z.string().optional(),
-  manufacturer: z.string().min(1, "Select a manufacturer"),
-  model: z.string().min(1, "Vehicle model is required"),
-  vehicleNumber: z.string().min(1, "License ID is required"),
-  technician: z.string().min(1, "Assign a lead technician"),
-  services: z.array(serviceItemSchema).min(1, "Add at least one service item"),
-});
+export const createJobCardSchema = z
+  .object({
+    customer_id: z.string().min(1, "Select a customer"),
+    is_new_vehicle: z.boolean(),
+    vehicle_id: z.string().optional(),
+    vehicleType: z.string().optional(),
+    manufacturer: z.string().optional(),
+    model: z.string().optional(),
+    registration_number: z.string().optional(),
+    assigned_technician_id: z.string().min(1, "Assign a lead technician"),
+    warranty_end_date: z.string().optional(),
+    warranty_notes: z.string().optional(),
+    services: z
+      .array(serviceLineSchema)
+      .min(1, "Add at least one service item"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.is_new_vehicle) {
+      if (!data.vehicleType)
+        ctx.addIssue({
+          code: "custom",
+          path: ["vehicleType"],
+          message: "Select a vehicle type",
+        });
+      if (!data.manufacturer)
+        ctx.addIssue({
+          code: "custom",
+          path: ["manufacturer"],
+          message: "Select a manufacturer",
+        });
+      if (!data.model)
+        ctx.addIssue({
+          code: "custom",
+          path: ["model"],
+          message: "Vehicle model is required",
+        });
+      if (!data.registration_number)
+        ctx.addIssue({
+          code: "custom",
+          path: ["registration_number"],
+          message: "Registration is required",
+        });
+    } else if (!data.vehicle_id) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["vehicle_id"],
+        message: "Select a vehicle",
+      });
+    }
+  });
 
-export type CreateJobForm = z.infer<typeof createJobSchema>;
-
-export const GST_RATE = 0.18;
+export type CreateJobCardForm = z.infer<typeof createJobCardSchema>;
+export type ServiceLine = z.infer<typeof serviceLineSchema>;
