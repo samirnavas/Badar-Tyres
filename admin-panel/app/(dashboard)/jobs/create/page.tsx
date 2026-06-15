@@ -147,7 +147,7 @@ function CreateJobForm() {
           manufacturer: values.manufacturer ?? "",
           model: values.model ?? "",
           registration_number: values.registration_number ?? "",
-          next_service_date: "",
+          next_service_date: null,
         });
         vehicleId = newVehicle.id;
       }

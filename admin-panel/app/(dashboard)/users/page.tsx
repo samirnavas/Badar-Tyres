@@ -413,16 +413,20 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       </div>
       <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 text-xs">
         <span className="text-gray-400">Next service</span>
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 font-medium",
-            dueSoon ? "text-amber-700" : "text-gray-700",
-          )}
-        >
-          {dueSoon && <AlertTriangle className="h-3.5 w-3.5" />}
-          {formatDate(vehicle.next_service_date)}
-          <span className="text-gray-400">({dueLabel})</span>
-        </span>
+        {!vehicle.next_service_date ? (
+          <span className="text-gray-400">— Not Scheduled</span>
+        ) : (
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 font-medium",
+              dueSoon ? "text-amber-700" : "text-gray-700",
+            )}
+          >
+            {dueSoon && <AlertTriangle className="h-3.5 w-3.5" />}
+            {formatDate(vehicle.next_service_date)}
+            <span className="text-gray-400">({dueLabel})</span>
+          </span>
+        )}
       </div>
     </div>
   );

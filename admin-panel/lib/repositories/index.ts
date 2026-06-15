@@ -16,6 +16,7 @@ export {
   getJobCardById,
   getJobCardsByCustomerId,
   createJobCard,
+  updateJobStatus,
 } from "./job_repository";
 export type {
   JobCardWithRelations,

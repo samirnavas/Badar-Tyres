@@ -99,3 +99,34 @@ export async function createJobCard(
   mockJobCards.push(jobCard);
   return jobCard;
 }
+
+/**
+ * Updates a job card's status and calculates next service date if completed/invoiced.
+ */
+export async function updateJobStatus(
+  jobId: string,
+  newStatus: string,
+): Promise<JobCardWithRelations | null> {
+  await simulateLatency();
+
+  const jobCard = mockJobCards.find((job) => job.id === jobId);
+  if (!jobCard) return null;
+
+  jobCard.status = newStatus as any;
+  jobCard.updated_at = new Date().toISOString();
+
+  // Smart Service Interval Calculation
+  if (newStatus === "Completed" || newStatus === "Invoiced") {
+    const vehicle = mockVehicles.find((v) => v.id === jobCard.vehicle_id);
+    if (vehicle) {
+      const nextServiceDate = new Date();
+      nextServiceDate.setDate(nextServiceDate.getDate() + 180);
+      vehicle.next_service_date = nextServiceDate.toISOString();
+    }
+  }
+
+  const customer = mockCustomers.find((c) => c.id === jobCard.customer_id) ?? null;
+  const vehicle = mockVehicles.find((v) => v.id === jobCard.vehicle_id) ?? null;
+
+  return { ...jobCard, customer, vehicle };
+}
