@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Search, RefreshCw, Bell, Menu, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const name = user?.name || "Workshop Manager";
   const initials = name
@@ -16,8 +24,17 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
     .substring(0, 2)
     .toUpperCase();
 
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push(`/jobs`);
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-gray-200 bg-white px-4 sm:gap-4 sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-gray-200 bg-white px-4 sm:gap-4 sm:px-6 print:hidden">
       <button
         type="button"
         onClick={onMenuClick}
@@ -27,14 +44,16 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="relative flex-1 max-w-xl">
+      <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search orders, clients, or vehicles..."
           className="w-full rounded-md border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-theme-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-theme-accent"
         />
-      </div>
+      </form>
 
       <div className="ml-auto flex items-center gap-1 sm:gap-2">
         <button
