@@ -29,11 +29,13 @@ export function CustomerFormModal({
   open,
   onClose,
   onCreated,
+  onSuccess,
   initialName = "",
 }: {
   open: boolean;
   onClose: () => void;
   onCreated?: (customer: Customer) => void;
+  onSuccess?: (customerId: string) => void;
   initialName?: string;
 }) {
   const queryClient = useQueryClient();
@@ -68,6 +70,7 @@ export function CustomerFormModal({
       );
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       onCreated?.(customer);
+      onSuccess?.(customer.id);
       onClose();
     },
   });
