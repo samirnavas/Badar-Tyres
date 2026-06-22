@@ -1,0 +1,30 @@
+[
+  {
+    "id": "U-001",
+    "name": "Admin",
+    "username": "admin",
+    "password": "admin123",
+    "role": "admin"
+  },
+  {
+    "id": "U-002",
+    "name": "John Mathew",
+    "username": "john",
+    "password": "john123",
+    "role": "admin"
+  },
+  {
+    "id": "U-003",
+    "name": "Rahul Nair",
+    "username": "rahul",
+    "password": "rahul123",
+    "role": "technician"
+  },
+  {
+    "id": "U-004",
+    "name": "David",
+    "username": "david",
+    "password": "david123",
+    "role": "Sales"
+  }
+]

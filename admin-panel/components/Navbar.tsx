@@ -1,20 +1,42 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
-import { Search, RefreshCw, Bell, Menu, LogOut, ChevronDown } from "lucide-react";
+import { useState, useEffect, FormEvent, useRef } from "react";
+import { Search, RefreshCw, Menu, LogOut, ChevronDown, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { cn } from "@/lib/format";
 
 export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [isSearching, setIsSearching] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setSearchQuery(searchParams.get("search") || "");
-  }, [searchParams]);
+    if (pathname === "/search") {
+      setIsSearching(false);
+    }
+  }, [searchParams, pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const name = user?.name || "Workshop Manager";
   const initials = name
@@ -26,11 +48,19 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
+    setIsSearching(true);
     if (searchQuery.trim()) {
-      router.push(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/search?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      router.push(`/jobs`);
+      router.push(`/search`);
     }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries();
+    router.refresh();
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   return (
@@ -44,29 +74,38 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu className="h-5 w-5" />
       </button>
 
-      <form onSubmit={handleSearch} className="relative flex-1 max-w-xl">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <form onSubmit={handleSearch} className="relative flex-1 max-w-xl group">
+        {isSearching ? (
+          <Loader2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-theme-accent" />
+        ) : (
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        )}
         <input
+          ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search orders, clients, or vehicles..."
-          className="w-full rounded-md border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-theme-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-theme-accent"
+          disabled={isSearching}
+          aria-busy={isSearching}
+          className="w-full rounded-md border border-gray-200 bg-gray-50 py-2 pl-9 pr-14 text-sm text-gray-900 placeholder:text-gray-400 focus:border-theme-accent focus:bg-white focus:outline-none focus:ring-1 focus:ring-theme-accent disabled:opacity-70 transition-colors"
         />
+        <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 opacity-100 transition-opacity group-focus-within:opacity-0">
+          <kbd className="inline-flex h-5 items-center gap-1 rounded border border-gray-200 bg-gray-100 px-1.5 font-mono text-[10px] font-medium text-gray-500">
+            <span className="text-xs">⌘</span>K
+          </kbd>
+        </div>
       </form>
 
       <div className="ml-auto flex items-center gap-1 sm:gap-2">
         <button
-          className="flex items-center gap-1.5 rounded-md px-2.5 py-2 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
-          title="Sync status: synced"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-2 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50"
+          title="Refresh data"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-        </button>
-
-        <button className="relative rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-theme-accent" />
         </button>
 
         <div className="mx-1 h-8 w-px bg-gray-200" />
@@ -79,7 +118,7 @@ export function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
             <div className="hidden text-right leading-tight sm:block">
               <p className="text-sm font-semibold text-gray-900">{name}</p>
               <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
-                {user?.role === "admin" ? "Workshop Manager" : "Technician"}
+                {user?.role || "Staff"}
               </p>
             </div>
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-theme-accent text-sm font-semibold text-white">

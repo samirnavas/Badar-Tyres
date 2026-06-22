@@ -1,7 +1,16 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "./types";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import type { User, UserRole } from "./models/User";
+import { hasRoutePermission } from "./permissions";
+import { getPermissions } from "./repositories/permission_repository";
+import { clearSession, loadSession, normalizeAuthUser, persistSession } from "./auth-storage";
 
 interface AuthState {
   token: string | null;
@@ -9,9 +18,13 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, rememberMe?: boolean) => void;
   logout: () => void;
   isInitialized: boolean;
+  permissions: Record<string, string[]> | null;
+  permissionsLoaded: boolean;
+  refreshPermissions: () => Promise<void>;
+  hasPermission: (pathname: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,41 +35,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user: null,
   });
   const [isInitialized, setIsInitialized] = useState(false);
+  const [permissions, setPermissions] = useState<Record<string, string[]> | null>(
+    null,
+  );
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
 
-  useEffect(() => {
-    // Initialize state from localStorage
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-
-    if (storedToken && storedUser) {
-      try {
-        setState({
-          token: storedToken,
-          user: JSON.parse(storedUser),
-        });
-      } catch (e) {
-        // Handle invalid JSON
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      }
-    }
-    setIsInitialized(true);
+  const refreshPermissions = useCallback(async () => {
+    const data = await getPermissions();
+    setPermissions(data);
+    setPermissionsLoaded(true);
   }, []);
 
-  const login = (token: string, user: User) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setState({ token, user });
+  useEffect(() => {
+    const session = loadSession();
+    if (session) {
+      setState(session);
+    }
+    setIsInitialized(true);
+    void refreshPermissions();
+  }, [refreshPermissions]);
+
+  const login = (token: string, user: User, rememberMe = true) => {
+    const normalized = normalizeAuthUser(user);
+    persistSession(token, normalized, rememberMe);
+    setState({ token, user: normalized });
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearSession(false);
     setState({ token: null, user: null });
   };
 
+  const hasPermission = useCallback(
+    (pathname: string) => {
+      if (!state.user || !permissions) return false;
+      return hasRoutePermission(
+        state.user.role as UserRole,
+        pathname,
+        permissions,
+      );
+    },
+    [state.user, permissions],
+  );
+
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, isInitialized }}>
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        logout,
+        isInitialized,
+        permissions,
+        permissionsLoaded,
+        refreshPermissions,
+        hasPermission,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

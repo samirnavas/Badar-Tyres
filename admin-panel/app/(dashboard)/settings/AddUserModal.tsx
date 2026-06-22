@@ -1,17 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { X, UserPlus } from "lucide-react";
 import { createUser } from "@/lib/repositories/user_repository";
 import { cn } from "@/lib/format";
+import type { UserRole } from "@/lib/models/User";
+
+const USER_ROLES = [
+  "Admin",
+  "Manager",
+  "Supervisor",
+  "Team Lead",
+  "Technician",
+  "Sales",
+] as const satisfies readonly UserRole[];
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  role: z.enum(["admin", "technician", "agent"]),
+  role: z.enum(USER_ROLES),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
 });
@@ -26,13 +36,12 @@ export function AddUserModal({ open, onClose }: { open: boolean; onClose: () => 
     register,
     handleSubmit,
     reset,
-    control,
     formState: { errors },
   } = useForm<UserForm>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       name: "",
-      role: "technician",
+      role: "Technician",
       email: "",
       phone: "",
     },
@@ -45,7 +54,7 @@ export function AddUserModal({ open, onClose }: { open: boolean; onClose: () => 
     try {
       await createUser({
         name: values.name,
-        role: values.role as any,
+        role: values.role,
         email: values.email || "",
         phone: values.phone || "",
       });
@@ -113,9 +122,11 @@ export function AddUserModal({ open, onClose }: { open: boolean; onClose: () => 
                     : "border-gray-200 focus:border-theme-accent focus:ring-theme-accent"
                 )}
               >
-                <option value="technician">Technician</option>
-                <option value="admin">Admin</option>
-                <option value="agent">Agent</option>
+                {USER_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
               </select>
               {errors.role && <p className="mt-1 text-xs text-theme-accent">{errors.role.message}</p>}
             </div>

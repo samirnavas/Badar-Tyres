@@ -1,0 +1,391 @@
+"use client";
+
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useForm, Controller, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { X, Loader2, CarFront } from "lucide-react";
+import { createVehicle, updateVehicle, getManufacturers } from "@/lib/repositories";
+import type { Vehicle, VehicleType } from "@/lib/models/Vehicle";
+import { cn } from "@/lib/format";
+import { Combobox } from "@/components/ui/Combobox";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+const vehicleSchema = z.object({
+  type: z.enum(["Car", "Bike", "Others"]),
+  manufacturer: z.string().min(1, "Manufacturer is required"),
+  model: z.string().min(1, "Model is required"),
+  registration_number: z.string().min(1, "Registration number is required"),
+  chassis_number: z.string().optional(),
+  engine_number: z.string().optional(),
+  color: z.string().optional(),
+  insurance_expiry: z.string().optional(),
+  pollution_expiry: z.string().optional(),
+});
+
+type VehicleFormValues = z.infer<typeof vehicleSchema>;
+
+export function VehicleFormModal({
+  open,
+  onClose,
+  customerId,
+  vehicleToEdit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  customerId: string;
+  vehicleToEdit?: Vehicle | null;
+}) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm<VehicleFormValues>({
+    resolver: zodResolver(vehicleSchema),
+    defaultValues: {
+      type: vehicleToEdit ? (vehicleToEdit.type as "Car" | "Bike" | "Others") : "Car",
+      manufacturer: vehicleToEdit?.manufacturer || "",
+      model: vehicleToEdit?.model || "",
+      registration_number: vehicleToEdit?.registration_number || "",
+      chassis_number: vehicleToEdit?.chassis_number || "",
+      engine_number: vehicleToEdit?.engine_number || "",
+      color: vehicleToEdit?.color || "",
+      insurance_expiry: vehicleToEdit?.insurance_expiry || "",
+      pollution_expiry: vehicleToEdit?.pollution_expiry || "",
+    },
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        type: vehicleToEdit ? (vehicleToEdit.type as "Car" | "Bike" | "Others") : "Car",
+        manufacturer: vehicleToEdit?.manufacturer || "",
+        model: vehicleToEdit?.model || "",
+        registration_number: vehicleToEdit?.registration_number || "",
+        chassis_number: vehicleToEdit?.chassis_number || "",
+        engine_number: vehicleToEdit?.engine_number || "",
+        color: vehicleToEdit?.color || "",
+        insurance_expiry: vehicleToEdit?.insurance_expiry || "",
+        pollution_expiry: vehicleToEdit?.pollution_expiry || "",
+      });
+    }
+  }, [open, vehicleToEdit, reset]);
+
+  const mutation = useMutation({
+    mutationFn: (values: VehicleFormValues) => {
+      const payload = {
+        type: values.type as VehicleType,
+        manufacturer: values.manufacturer.trim(),
+        model: values.model.trim(),
+        registration_number: values.registration_number.trim(),
+        chassis_number: values.chassis_number?.trim() || "",
+        engine_number: values.engine_number?.trim() || "",
+        color: values.color?.trim() || "",
+        insurance_expiry: values.insurance_expiry || null,
+        pollution_expiry: values.pollution_expiry || null,
+      };
+      
+      if (vehicleToEdit) {
+        return updateVehicle(vehicleToEdit.id, payload);
+      } else {
+        return createVehicle({
+          ...payload,
+          customer_id: customerId,
+          next_service_date: null,
+        });
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles-by-customer", customerId] });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      router.refresh();
+      toast.success(vehicleToEdit 
+        ? `Vehicle ${variables.registration_number} updated` 
+        : `Vehicle ${variables.registration_number} added`);
+      onClose();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save vehicle");
+    },
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+
+  const vehicleType = useWatch({
+    control,
+    name: "type",
+  });
+
+  const manufacturersQuery = useQuery({
+    queryKey: ["manufacturers"],
+    queryFn: getManufacturers,
+  });
+
+  const manufacturerOptions =
+    manufacturersQuery.data?.map((m) => ({ label: m.name, value: m.name })) ?? [];
+
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+      {/* Backdrop */}
+      <div
+        aria-hidden
+        onClick={onClose}
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+      />
+
+      {/* Panel */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add new vehicle"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl border border-gray-200 bg-white shadow-2xl sm:rounded-2xl [color-scheme:light]"
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-5 py-4">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+              <CarFront className="h-4 w-4" />
+            </span>
+            <h2 className="text-base font-semibold text-gray-900">
+              {vehicleToEdit ? "Edit Vehicle" : "Add New Vehicle"}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && e.target instanceof HTMLElement && e.target.tagName !== "BUTTON") {
+              const isTextarea = e.target.tagName === "TEXTAREA";
+              const isBlankTextarea = isTextarea && (e.target as HTMLTextAreaElement).value.trim() === "";
+
+              if (!isTextarea || isBlankTextarea) {
+                e.preventDefault();
+                const formElements = Array.from(
+                  e.currentTarget.querySelectorAll<HTMLElement>(
+                    "input, select, textarea, button[type='submit']"
+                  )
+                );
+                const index = formElements.indexOf(e.target);
+                if (index > -1 && index < formElements.length - 1) {
+                  formElements[index + 1].focus();
+                }
+              }
+            }
+          }}
+          onSubmit={handleSubmit((values) => mutation.mutate(values))}
+          className="flex flex-col"
+        >
+          <div className="space-y-5 p-5">
+            {/* Core Details */}
+            <div className="rounded-xl border border-gray-100 bg-[#f8f9fa] p-4 [color-scheme:light]">
+              <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Core Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Field label="Vehicle Type" error={errors.type?.message}>
+                    <Controller
+                      control={control}
+                      name="type"
+                      render={({ field }) => (
+                        <Combobox
+                          options={[
+                            { value: "Car", label: "Car" },
+                            { value: "Bike", label: "Bike" },
+                            { value: "Others", label: "Others" },
+                          ]}
+                          value={field.value}
+                          onChange={field.onChange}
+                          className={inputClass(!!errors.type)}
+                          placeholder="Select vehicle type..."
+                        />
+                      )}
+                    />
+                  </Field>
+                </div>
+              <Field label="Manufacturer" error={errors.manufacturer?.message}>
+                <Controller
+                  control={control}
+                  name="manufacturer"
+                  render={({ field }) => (
+                    <Combobox
+                      options={manufacturerOptions}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      placeholder="Select manufacturer..."
+                      disabled={manufacturersQuery.isLoading}
+                      className={inputClass(!!errors.manufacturer)}
+                      emptyMessage="No manufacturers"
+                      autoFocus
+                    />
+                  )}
+                />
+              </Field>
+              <Field label="Model" error={errors.model?.message}>
+                <input
+                  {...register("model")}
+                  placeholder="e.g. Innova"
+                  className={inputClass(!!errors.model)}
+                />
+              </Field>
+            </div>
+          </div>
+
+          {/* Registration & Identifiers */}
+          <div className="rounded-xl border border-gray-100 bg-[#f8f9fa] p-4 [color-scheme:light]">
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Registration & Identifiers</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Field label="Registration Number" error={errors.registration_number?.message}>
+                  <input
+                    {...register("registration_number", {
+                      onChange: (e) => {
+                        e.target.value = e.target.value.toUpperCase();
+                      },
+                    })}
+                    placeholder="E.G. KL-07-AB-1234"
+                    className={cn(inputClass(!!errors.registration_number), "uppercase")}
+                  />
+                </Field>
+              </div>
+              <Field label="Chassis Number (Optional)" error={errors.chassis_number?.message}>
+                <input
+                  {...register("chassis_number", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.toUpperCase();
+                    },
+                  })}
+                  placeholder="e.g. MA123..."
+                  className={cn(inputClass(!!errors.chassis_number), "uppercase")}
+                />
+              </Field>
+              <Field label="Engine Number (Optional)" error={errors.engine_number?.message}>
+                <input
+                  {...register("engine_number", {
+                    onChange: (e) => {
+                      e.target.value = e.target.value.toUpperCase();
+                    },
+                  })}
+                  placeholder="e.g. 1TR..."
+                  className={cn(inputClass(!!errors.engine_number), "uppercase")}
+                />
+              </Field>
+            </div>
+          </div>
+
+          {/* Status & Expirations */}
+          <div className="rounded-xl border border-gray-100 bg-[#f8f9fa] p-4 [color-scheme:light]">
+            <h3 className="mb-4 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Status & Expirations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Field label="Color (Optional)" error={errors.color?.message}>
+                  <input
+                    {...register("color")}
+                    placeholder="e.g. Pearl White"
+                    className={inputClass(!!errors.color)}
+                  />
+                </Field>
+              </div>
+              <Field label="Insurance Expiry" error={errors.insurance_expiry?.message}>
+                <input
+                  type="date"
+                  {...register("insurance_expiry")}
+                  className={inputClass(!!errors.insurance_expiry)}
+                />
+              </Field>
+              <Field label="Pollution Expiry" error={errors.pollution_expiry?.message}>
+                <input
+                  type="date"
+                  {...register("pollution_expiry")}
+                  className={inputClass(!!errors.pollution_expiry)}
+                />
+              </Field>
+            </div>
+          </div>
+          </div>
+
+          <div className="sticky bottom-0 z-10 flex items-center justify-end gap-2 border-t border-gray-100 bg-white px-5 py-4">
+            {mutation.isError && (
+              <p className="mr-auto text-xs font-medium text-theme-accent">
+                {(mutation.error as Error)?.message ?? "Failed to save vehicle."}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="inline-flex items-center gap-2 rounded-lg bg-theme-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-theme-accent-dark disabled:opacity-60"
+            >
+              {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {mutation.isPending ? "Saving..." : "Save Vehicle"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+        {label}
+      </label>
+      {children}
+      {error && (
+        <p className="mt-1 text-xs font-medium text-theme-accent">{error}</p>
+      )}
+    </div>
+  );
+}
+
+function inputClass(hasError: boolean): string {
+  return cn(
+    "w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1",
+    hasError
+      ? "border-theme-accent focus:border-theme-accent focus:ring-theme-accent"
+      : "border-gray-200 focus:border-theme-accent focus:ring-theme-accent",
+  );
+}
